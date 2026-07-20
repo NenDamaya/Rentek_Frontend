@@ -16,7 +16,10 @@
   onMount(async () => {
     try {
       const res = await fetch(`${API_BASE}/v1/tools`, {
-        headers: { 'ngrok-skip-browser-warning': 'true' },
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+          'User-Agent': 'rentek-app/1.0',
+        },
       })
       const data = await res.json()
       tools = data.tools || []

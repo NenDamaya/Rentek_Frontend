@@ -3,6 +3,7 @@ export const API_BASE = import.meta.env.VITE_API_URL || ''
 const HEADERS = {
   'Content-Type': 'application/json',
   'ngrok-skip-browser-warning': 'true',
+  'User-Agent': 'rentek-app/1.0',
 }
 
 export async function chatCompletions(messages, tools, conversationId = null) {
