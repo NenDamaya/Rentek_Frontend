@@ -18,7 +18,7 @@
   let streaming = false
   let statusText = ''
   let loadStatus = ''
-  let sidebarOpen = true
+  let refreshKey = 0
 
   onMount(async () => {
     try {
@@ -40,9 +40,9 @@
     const chatId = e.detail
     if (chatId === currentChatId) return
     currentChatId = chatId
-    conversationId = null
 
     if (!chatId) {
+      conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
       return
     }
@@ -57,12 +57,14 @@
         },
       })
       const data = await res.json()
+      conversationId = data.conversation_id || null
       if (data.messages && data.messages.length > 0) {
         messages = data.messages
       } else {
         messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
       }
     } catch {
+      conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
     }
     scrollDown()
@@ -90,6 +92,7 @@
           })
           const chat = await res.json()
           currentChatId = chat.id
+          refreshKey++
           updateChatTitle(chat.id, text)
         } catch {}
       }
@@ -210,11 +213,10 @@
 </script>
 
 <div class="app-layout">
-  <Sidebar {user} {currentChatId} on:select={selectChat} />
+  <Sidebar {user} {currentChatId} {refreshKey} on:select={selectChat} />
 
   <div class="chat">
     <header class="header">
-      <button class="menu-btn" on:click={() => sidebarOpen = !sidebarOpen}>☰</button>
       <h1>🏗️ Asesor de Maquinaria</h1>
       <div class="header-right">
         <div class="header-badges">
@@ -306,18 +308,6 @@
     padding: 12px 20px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-  }
-  .menu-btn {
-    background: none;
-    border: none;
-    color: var(--text, #fff);
-    font-size: 1.2em;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
-  }
-  .menu-btn:hover {
-    background: var(--surface-2, #2a2a2a);
   }
   .header h1 {
     font-size: 1em;

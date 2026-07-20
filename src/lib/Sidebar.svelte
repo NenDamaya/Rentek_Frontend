@@ -6,9 +6,12 @@
 
   export let currentChatId = null
   export let user = null
+  export let refreshKey = 0
 
   let chats = []
   let loading = false
+
+  $: if (refreshKey >= 0) loadChats()
 
   onMount(loadChats)
 
@@ -85,9 +88,10 @@
 
 <aside class="sidebar">
   <div class="sidebar-header">
-    <span class="user-avatar">{user?.picture ? '' : '👤'}</span>
     {#if user?.picture}
       <img src={user.picture} alt="" class="avatar-img" />
+    {:else}
+      <span class="user-avatar">👤</span>
     {/if}
     <span class="user-name">{user?.display_name || user?.username || 'Usuario'}</span>
   </div>
