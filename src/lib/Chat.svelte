@@ -2,6 +2,7 @@
   import { onMount, createEventDispatcher } from 'svelte'
   import Message from './Message.svelte'
   import VoiceButton from './VoiceButton.svelte'
+  import Sidebar from './Sidebar.svelte'
   import { chatCompletions, chatCompletionsStream, API_BASE } from './api.js'
 
   export let user = null
@@ -13,9 +14,11 @@
   let chatContainer
   let tools = []
   let conversationId = null
+  let currentChatId = null
   let streaming = false
   let statusText = ''
   let loadStatus = ''
+  let sidebarOpen = true
 
   onMount(async () => {
     try {
@@ -33,12 +36,66 @@
     messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
   })
 
+  async function selectChat(e) {
+    const chatId = e.detail
+    if (chatId === currentChatId) return
+    currentChatId = chatId
+    conversationId = null
+
+    if (!chatId) {
+      messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
+      return
+    }
+
+    const token = localStorage.getItem('rentek_token')
+    try {
+      const res = await fetch(`${API_BASE}/api/chats/${chatId}/messages`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true',
+          'User-Agent': 'rentek-app/1.0',
+        },
+      })
+      const data = await res.json()
+      if (data.messages && data.messages.length > 0) {
+        messages = data.messages
+      } else {
+        messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
+      }
+    } catch {
+      messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
+    }
+    scrollDown()
+  }
+
   async function send() {
     const text = input.trim()
     if (!text || loading) return
     input = ''
     loading = true
     streaming = true
+
+    if (!currentChatId) {
+      const token = localStorage.getItem('rentek_token')
+      if (token) {
+        try {
+          const res = await fetch(`${API_BASE}/api/chats`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': 'true',
+              'User-Agent': 'rentek-app/1.0',
+            },
+          })
+          const chat = await res.json()
+          currentChatId = chat.id
+          updateChatTitle(chat.id, text)
+        } catch {}
+      }
+    } else {
+      updateChatTitle(currentChatId, text)
+    }
 
     messages = [...messages, { role: 'user', content: text }]
     scrollDown()
@@ -48,7 +105,7 @@
       let toolCallsFound = []
       let currentConversationId = conversationId
 
-      for await (const event of chatCompletionsStream(messages, tools, currentConversationId)) {
+      for await (const event of chatCompletionsStream(messages, tools, currentConversationId, currentChatId)) {
         if (event.type === 'status') {
           loadStatus = event.status
           if (event.status === 'thinking') statusText = 'Pensando...'
@@ -113,6 +170,24 @@
     }
   }
 
+  async function updateChatTitle(chatId, firstMessage) {
+    const token = localStorage.getItem('rentek_token')
+    if (!token) return
+    const title = firstMessage.slice(0, 50) + (firstMessage.length > 50 ? '...' : '')
+    try {
+      await fetch(`${API_BASE}/api/chats/${chatId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+          'User-Agent': 'rentek-app/1.0',
+        },
+        body: JSON.stringify({ title }),
+      })
+    } catch {}
+  }
+
   function handleVoice(event) {
     input = event.detail
     send()
@@ -134,143 +209,129 @@
   }
 </script>
 
-<div class="chat">
-  <header class="header">
-    <h1>🏗️ Asesor de Maquinaria</h1>
-    <div class="header-right">
-      <div class="header-badges">
-        <span class="badge">Function Calling</span>
-        <span class="badge badge-green">Streaming</span>
-        {#if conversationId}
-          <span class="badge badge-blue">Sesión activa</span>
-        {/if}
+<div class="app-layout">
+  <Sidebar {user} {currentChatId} on:select={selectChat} />
+
+  <div class="chat">
+    <header class="header">
+      <button class="menu-btn" on:click={() => sidebarOpen = !sidebarOpen}>☰</button>
+      <h1>🏗️ Asesor de Maquinaria</h1>
+      <div class="header-right">
+        <div class="header-badges">
+          <span class="badge">Function Calling</span>
+          <span class="badge badge-green">Streaming</span>
+          {#if conversationId}
+            <span class="badge badge-blue">Sesión activa</span>
+          {/if}
+        </div>
+        <button class="logout-btn" on:click={() => dispatch('logout')} title="Cerrar sesión">✕</button>
       </div>
-      {#if user}
-        <div class="user-info">
-          <span class="user-avatar">👤</span>
-          <span class="user-name">{user.display_name || user.username}</span>
-          <button class="logout-btn" on:click={() => dispatch('logout')} title="Cerrar sesión">✕</button>
+    </header>
+
+    <div class="messages" bind:this={chatContainer}>
+      {#each messages as msg, i (i)}
+        <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
+      {/each}
+      {#if loading && !streaming}
+        <div class="typing">
+          {#if loadStatus === 'thinking'}
+            <span class="status-indicator thinking">
+              <span class="pulse-ring" />
+              <span class="status-emoji">🧠</span>
+            </span>
+          {:else if loadStatus === 'searching'}
+            <span class="status-indicator searching">
+              <span class="pulse-ring search-ring" />
+              <span class="status-emoji">🔍</span>
+            </span>
+          {:else if loadStatus === 'executing'}
+            <span class="status-indicator executing">
+              <span class="pulse-ring exec-ring" />
+              <span class="status-emoji">⚙️</span>
+            </span>
+          {:else}
+            <span class="dot" /><span class="dot" /><span class="dot" />
+          {/if}
+        </div>
+      {/if}
+      {#if statusText}
+        <div class="status-bar" class:thinking={loadStatus === 'thinking'} class:searching={loadStatus === 'searching'} class:executing={loadStatus === 'executing'}>
+          {#if loadStatus === 'thinking'}
+            <span class="status-icon">🧠</span>
+          {:else if loadStatus === 'searching'}
+            <span class="status-icon">🔍</span>
+          {:else if loadStatus === 'executing'}
+            <span class="status-icon">⚙️</span>
+          {:else}
+            <span class="status-icon">⚡</span>
+          {/if}
+          {statusText}
         </div>
       {/if}
     </div>
-  </header>
 
-  <div class="messages" bind:this={chatContainer}>
-    {#each messages as msg, i (i)}
-      <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
-    {/each}
-    {#if loading && !streaming}
-      <div class="typing">
-        {#if loadStatus === 'thinking'}
-          <span class="status-indicator thinking">
-            <span class="pulse-ring" />
-            <span class="status-emoji">🧠</span>
-          </span>
-        {:else if loadStatus === 'searching'}
-          <span class="status-indicator searching">
-            <span class="pulse-ring search-ring" />
-            <span class="status-emoji">🔍</span>
-          </span>
-        {:else if loadStatus === 'executing'}
-          <span class="status-indicator executing">
-            <span class="pulse-ring exec-ring" />
-            <span class="status-emoji">⚙️</span>
-          </span>
-        {:else}
-          <span class="dot" /><span class="dot" /><span class="dot" />
-        {/if}
-      </div>
-    {/if}
-    {#if statusText}
-      <div class="status-bar" class:thinking={loadStatus === 'thinking'} class:searching={loadStatus === 'searching'} class:executing={loadStatus === 'executing'}>
-        {#if loadStatus === 'thinking'}
-          <span class="status-icon">🧠</span>
-        {:else if loadStatus === 'searching'}
-          <span class="status-icon">🔍</span>
-        {:else if loadStatus === 'executing'}
-          <span class="status-icon">⚙️</span>
-        {:else}
-          <span class="status-icon">⚡</span>
-        {/if}
-        {statusText}
-      </div>
-    {/if}
+    <form class="input-bar" on:submit|preventDefault={send}>
+      <VoiceButton on:transcript={handleVoice} disabled={loading} />
+      <textarea
+        bind:value={input}
+        on:keydown={handleKeydown}
+        placeholder="Pregunta sobre maquinaria pesada..."
+        rows="1"
+        disabled={loading}
+      />
+      <button type="submit" disabled={loading || !input.trim()}>
+        {loading ? '...' : '➤'}
+      </button>
+    </form>
   </div>
-
-  <form class="input-bar" on:submit|preventDefault={send}>
-    <VoiceButton on:transcript={handleVoice} disabled={loading} />
-    <textarea
-      bind:value={input}
-      on:keydown={handleKeydown}
-      placeholder="Pregunta sobre maquinaria pesada..."
-      rows="1"
-      disabled={loading}
-    />
-    <button type="submit" disabled={loading || !input.trim()}>
-      {loading ? '...' : '➤'}
-    </button>
-  </form>
 </div>
 
 <style>
+  .app-layout {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
   .chat {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
   }
   .header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 12px;
-    padding: 16px 20px;
+    padding: 12px 20px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
+  .menu-btn {
+    background: none;
+    border: none;
+    color: var(--text, #fff);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .menu-btn:hover {
+    background: var(--surface-2, #2a2a2a);
+  }
   .header h1 {
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 600;
   }
   .header-right {
     display: flex;
     align-items: center;
     gap: 12px;
+    margin-left: auto;
   }
   .header-badges {
     display: flex;
     gap: 6px;
-  }
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: var(--surface-2, #2a2a2a);
-    border-radius: 999px;
-    font-size: 0.8em;
-  }
-  .user-avatar {
-    font-size: 1em;
-  }
-  .user-name {
-    color: var(--text, #fff);
-  }
-  .logout-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted, #888);
-    cursor: pointer;
-    font-size: 0.9em;
-    padding: 2px 4px;
-    border-radius: 4px;
-    line-height: 1;
-  }
-  .logout-btn:hover {
-    background: #ef444420;
-    color: #ef4444;
   }
   .badge {
     background: var(--primary);
@@ -283,6 +344,19 @@
   }
   .badge-green { background: #22c55e; }
   .badge-blue { background: #3b82f6; }
+  .logout-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted, #888);
+    cursor: pointer;
+    font-size: 1em;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .logout-btn:hover {
+    background: #ef444420;
+    color: #ef4444;
+  }
   .messages {
     flex: 1;
     overflow-y: auto;
@@ -328,18 +402,10 @@
     width: fit-content;
     transition: all 0.3s ease;
   }
-  .status-bar.thinking {
-    border-left: 3px solid #a855f7;
-  }
-  .status-bar.searching {
-    border-left: 3px solid #3b82f6;
-  }
-  .status-bar.executing {
-    border-left: 3px solid #f59e0b;
-  }
-  .status-icon {
-    font-size: 1em;
-  }
+  .status-bar.thinking { border-left: 3px solid #a855f7; }
+  .status-bar.searching { border-left: 3px solid #3b82f6; }
+  .status-bar.executing { border-left: 3px solid #f59e0b; }
+  .status-icon { font-size: 1em; }
   .status-indicator {
     display: flex;
     align-items: center;
@@ -361,12 +427,8 @@
     border: 2px solid #a855f7;
     animation: pulse-ring 1.5s ease-out infinite;
   }
-  .search-ring {
-    border-color: #3b82f6;
-  }
-  .exec-ring {
-    border-color: #f59e0b;
-  }
+  .search-ring { border-color: #3b82f6; }
+  .exec-ring { border-color: #f59e0b; }
   @keyframes pulse-ring {
     0% { transform: scale(0.8); opacity: 1; }
     100% { transform: scale(1.6); opacity: 0; }

@@ -22,9 +22,10 @@ export async function chatCompletions(messages, tools, conversationId = null) {
   return res.json()
 }
 
-export async function* chatCompletionsStream(messages, tools, conversationId = null) {
+export async function* chatCompletionsStream(messages, tools, conversationId = null, chatId = null) {
   const body = { messages, tools, stream: true }
   if (conversationId) body.conversation_id = conversationId
+  if (chatId) body.chat_id = chatId
 
   const res = await fetch(`${API_BASE}/v1/chat/completions/stream`, {
     method: 'POST',
