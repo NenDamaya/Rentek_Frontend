@@ -15,6 +15,7 @@
   let mediaStream = null
   let mediaRecorder = null
   let errorMsg = ''
+  let interimText = ''
 
   onMount(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -37,6 +38,7 @@
     if (disabled) return
     if (isRecording) { stop(); return }
     errorMsg = ''
+    interimText = ''
 
     if (speechSupported) {
       startWebSpeech()
@@ -54,17 +56,37 @@
     recognition = new SpeechRecognition()
     recognition.lang = 'es-ES'
     recognition.continuous = false
-    recognition.interimResults = false
+    recognition.interimResults = true
 
     recognition.onstart = () => { isRecording = true }
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript
-      dispatch('transcript', transcript)
+      let interim = ''
+      let final = ''
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          final += transcript
+        } else {
+          interim += transcript
+        }
+      }
+
+      if (interim) {
+        interimText = interim
+        dispatch('interim', interim)
+      }
+
+      if (final) {
+        interimText = ''
+        dispatch('transcript', final)
+      }
     }
 
     recognition.onerror = (event) => {
       isRecording = false
+      interimText = ''
       if (event.error === 'not-allowed') {
         showError('Permiso de micrófono denegado')
       } else if (event.error === 'no-speech') {
@@ -74,7 +96,10 @@
       }
     }
 
-    recognition.onend = () => { isRecording = false }
+    recognition.onend = () => {
+      isRecording = false
+      interimText = ''
+    }
 
     try {
       recognition.start()
@@ -141,6 +166,8 @@
       const headers = {}
       if (token) headers['Authorization'] = `Bearer ${token}`
 
+      dispatch('interim', 'Transcribiendo...')
+
       const res = await fetch(`${API_BASE}/api/transcribe`, {
         method: 'POST',
         headers,
@@ -149,11 +176,14 @@
 
       if (res.ok) {
         const data = await res.json()
+        dispatch('interim', '')
         if (data.text) dispatch('transcript', data.text)
       } else {
+        dispatch('interim', '')
         showError('Error al transcribir audio')
       }
     } catch (err) {
+      dispatch('interim', '')
       showError('Error de conexión al transcribir')
     }
   }
@@ -162,6 +192,7 @@
     if (recognition) { recognition.abort(); recognition = null }
     if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop() }
     else { isRecording = false }
+    interimText = ''
   }
 </script>
 
@@ -186,6 +217,12 @@
   {#if errorMsg}
     <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap bg-red text-white shadow-lg z-50">
       {errorMsg}
+    </div>
+  {/if}
+
+  {#if interimText}
+    <div class="absolute bottom-full left-0 mb-2 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap bg-surface text-text-muted border border-border shadow-lg z-50 max-w-[200px] truncate">
+      {interimText}
     </div>
   {/if}
 </div>

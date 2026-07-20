@@ -171,6 +171,12 @@
 
   function handleVoice(event) { input = event.detail; send() }
 
+  function handleVoiceInterim(event) {
+    if (event.detail) {
+      input = event.detail
+    }
+  }
+
   function scrollDown() {
     setTimeout(() => { if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight }, 50)
   }
@@ -279,7 +285,7 @@
 
     <div class="shrink-0 bg-surface border-t border-border">
       <form class="max-w-3xl mx-auto flex gap-3 px-4 py-3 items-end" on:submit|preventDefault={send}>
-        <VoiceButton on:transcript={handleVoice} disabled={loading} />
+        <VoiceButton on:transcript={handleVoice} on:interim={handleVoiceInterim} disabled={loading} />
         <div class="flex-1 relative">
           <textarea
             bind:value={input}
