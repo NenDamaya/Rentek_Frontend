@@ -12,8 +12,9 @@
   $: isTool = role === 'tool'
 </script>
 
-<div class="message" class:user={isUser} class:assistant={isAssistant} class:tool={isTool}>
-  <div class="avatar">
+<div class="flex gap-3 mb-4 items-start {isUser ? 'flex-row-reverse' : ''}">
+  <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm
+    {isUser ? 'bg-primary' : isTool ? 'bg-tool-msg' : 'bg-surface-2'}">
     {#if isUser}
       <LucideIcons name="user" size={16} />
     {:else if isTool}
@@ -22,12 +23,15 @@
       <LucideIcons name="bot" size={16} />
     {/if}
   </div>
-  <div class="bubble">
+  <div class="max-w-[85%] md:max-w-[70%] px-3.5 py-2.5 text-sm leading-relaxed rounded-xl
+    {isUser ? 'bg-primary text-white rounded-br-sm' : ''}
+    {isAssistant ? 'bg-assistant-msg border border-border rounded-bl-sm' : ''}
+    {isTool ? 'bg-tool-msg border border-border text-text-muted text-xs rounded-bl-sm' : ''}">
     {#if content}
-      <div class="text">{content}{#if streaming}<span class="cursor">▊</span>{/if}</div>
+      <div class="whitespace-pre-wrap break-words">{content}{#if streaming}<span class="text-primary animate-pulse ml-0.5">|</span>{/if}</div>
     {/if}
     {#if toolCalls && toolCalls.length > 0}
-      <div class="tool-calls">
+      <div class="mt-2">
         {#each toolCalls as tc}
           <ToolCall
             name={tc.function?.name || tc.name}
@@ -38,73 +42,3 @@
     {/if}
   </div>
 </div>
-
-<style>
-  .message {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    align-items: flex-start;
-  }
-  .message.user {
-    flex-direction: row-reverse;
-  }
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-    flex-shrink: 0;
-  }
-  .user .avatar {
-    background: var(--primary);
-  }
-  .assistant .avatar {
-    background: var(--surface-2);
-  }
-  .tool .avatar {
-    background: var(--tool-msg);
-    font-size: 0.9em;
-  }
-  .bubble {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    line-height: 1.5;
-    font-size: 0.95em;
-  }
-  .user .bubble {
-    background: var(--user-msg);
-    color: white;
-    border-bottom-right-radius: 4px;
-  }
-  .assistant .bubble {
-    background: var(--assistant-msg);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-  }
-  .tool .bubble {
-    background: var(--tool-msg);
-    border: 1px solid var(--border);
-    font-size: 0.85em;
-    color: var(--text-muted);
-  }
-  .text {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .tool-calls {
-    margin-top: 8px;
-  }
-  .cursor {
-    animation: blink 0.7s infinite;
-    color: var(--primary);
-  }
-  @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-  }
-</style>

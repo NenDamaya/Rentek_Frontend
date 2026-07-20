@@ -31,19 +31,19 @@
   }
 </script>
 
-<div class="login-wrapper">
-  <div class="login-card">
-    <div class="login-header">
-      <span class="logo"><LucideIcons name="hardhat" size={40} /></span>
-      <h1>Rentek</h1>
-      <p>Asistente de Renta de Maquinaria Pesada</p>
+<div class="flex items-center justify-center min-h-screen bg-bg p-5">
+  <div class="bg-surface border border-border rounded-2xl p-8 sm:p-10 w-full max-w-sm shadow-xl">
+    <div class="text-center mb-8">
+      <span class="block mb-2 text-primary"><LucideIcons name="hardhat" size={40} /></span>
+      <h1 class="text-xl font-bold mb-1">Rentek</h1>
+      <p class="text-text-muted text-sm m-0">Asistente de Renta de Maquinaria Pesada</p>
     </div>
 
     {#if error}
-      <div class="error">{error}</div>
+      <div class="bg-error/10 border border-error text-error px-3.5 py-2.5 rounded-lg text-sm mb-5">{error}</div>
     {/if}
 
-    <button class="google-btn" on:click={googleLogin}>
+    <button class="w-full py-3.5 px-4 border border-border rounded-xl bg-surface-2 text-text font-medium cursor-pointer flex items-center justify-center gap-2.5 transition-colors hover:bg-surface-2/80" on:click={googleLogin}>
       <svg width="18" height="18" viewBox="0 0 24 24">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -53,78 +53,6 @@
       Continuar con Google
     </button>
 
-    <p class="hint">Serás redirigido a Google para autenticarte</p>
+    <p class="text-center text-xs text-text-muted mt-4">Serás redirigido a Google para autenticarte</p>
   </div>
 </div>
-
-<style>
-  .login-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: var(--bg, #0f0f0f);
-    padding: 20px;
-  }
-  .login-card {
-    background: var(--surface, #1a1a1a);
-    border: 1px solid var(--border, #333);
-    border-radius: 16px;
-    padding: 40px 32px;
-    width: 100%;
-    max-width: 380px;
-  }
-  .login-header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  .logo {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--primary, #3b82f6);
-  }
-  .login-header h1 {
-    font-size: 1.5em;
-    font-weight: 700;
-    margin: 0 0 4px;
-  }
-  .login-header p {
-    color: var(--text-muted, #888);
-    font-size: 0.85em;
-    margin: 0;
-  }
-  .error {
-    background: #ef444420;
-    border: 1px solid #ef4444;
-    color: #ef4444;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 0.85em;
-    margin-bottom: 20px;
-  }
-  .google-btn {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid var(--border, #333);
-    border-radius: 10px;
-    background: var(--surface-2, #2a2a2a);
-    color: var(--text, #fff);
-    font-size: 1em;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: background 0.2s;
-  }
-  .google-btn:hover {
-    background: var(--surface-3, #3a3a3a);
-  }
-  .hint {
-    text-align: center;
-    font-size: 0.75em;
-    color: var(--text-muted, #666);
-    margin-top: 16px;
-  }
-</style>

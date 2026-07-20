@@ -30,8 +30,8 @@
 </script>
 
 {#if !checked}
-  <div class="loading-screen">
-    <span class="logo"><LucideIcons name="hardhat" size={48} /></span>
+  <div class="flex flex-col items-center justify-center h-screen gap-3 text-text-muted">
+    <span class="text-primary animate-pulse"><LucideIcons name="hardhat" size={48} /></span>
     <p>Cargando...</p>
   </div>
 {:else if user}
@@ -39,23 +39,3 @@
 {:else}
   <Login on:login={handleLogin} />
 {/if}
-
-<style>
-  .loading-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    gap: 12px;
-    color: var(--text-muted, #888);
-  }
-  .logo {
-    animation: pulse 1.5s ease-in-out infinite;
-    color: var(--primary, #3b82f6);
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.95); }
-  }
-</style>

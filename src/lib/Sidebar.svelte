@@ -8,6 +8,7 @@
   export let currentChatId = null
   export let user = null
   export let refreshKey = 0
+  export let isDesktop = false
 
   let chats = []
   let loading = false
@@ -66,9 +67,7 @@
         },
       })
       chats = chats.filter(c => c.id !== chatId)
-      if (currentChatId === chatId) {
-        dispatch('select', null)
-      }
+      if (currentChatId === chatId) dispatch('select', null)
     } catch {}
   }
 
@@ -82,167 +81,53 @@
     const now = new Date()
     const diff = now - d
     if (diff < 86400000) return 'Hoy'
-    if (diff < 172800000) return 'Ayer'
+    if (diff < 172800000) 'Ayer'
     return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })
   }
 </script>
 
-<aside class="sidebar">
-  <div class="sidebar-header">
-    {#if user?.picture}
-      <img src={user.picture} alt="" class="avatar-img" />
-    {:else}
-      <span class="user-avatar"><LucideIcons name="user" size={16} /></span>
+<aside class="flex flex-col h-full w-72 md:w-64 bg-surface border-r border-border shadow-lg">
+  <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
+    <div class="flex items-center gap-2 min-w-0">
+      {#if user?.picture}
+        <img src={user.picture} alt="" class="w-7 h-7 rounded-full flex-shrink-0" />
+      {:else}
+        <span class="w-7 h-7 rounded-full bg-surface-2 flex items-center justify-center flex-shrink-0">
+          <LucideIcons name="user" size={14} />
+        </span>
+      {/if}
+      <span class="text-sm font-medium truncate">{user?.display_name || user?.username || 'Usuario'}</span>
+    </div>
+    {#if !isDesktop}
+      <button class="p-1.5 rounded-lg hover:bg-surface-2 transition-colors text-text-muted" on:click={() => dispatch('close')}>
+        <LucideIcons name="x" size={18} />
+      </button>
     {/if}
-    <span class="user-name">{user?.display_name || user?.username || 'Usuario'}</span>
   </div>
 
-  <button class="new-chat-btn" on:click={newChat} disabled={loading}>
-    <span>+</span> Nuevo chat
+  <button class="mx-3 mt-3 mb-2 py-2.5 px-3 border border-dashed border-border rounded-lg bg-transparent text-text text-xs cursor-pointer flex items-center gap-2 transition-colors hover:bg-surface-2 disabled:opacity-50" on:click={newChat} disabled={loading}>
+    <span class="text-base font-light">+</span> Nuevo chat
   </button>
 
-  <div class="chat-list">
+  <div class="flex-1 overflow-y-auto px-2">
     {#each chats as chat (chat.id)}
       <button
-        class="chat-item"
-        class:active={chat.id === currentChatId}
+        class="w-full text-left py-2.5 px-3 border-none rounded-lg bg-transparent text-text cursor-pointer mb-0.5 transition-colors hover:bg-surface-2 text-sm
+          {chat.id === currentChatId ? 'bg-surface-2' : ''}"
         on:click={() => selectChat(chat.id)}
       >
-        <div class="chat-title">{chat.title}</div>
-        <div class="chat-meta">
+        <div class="truncate">{chat.title}</div>
+        <div class="flex justify-between items-center mt-1 text-[0.65rem] text-text-muted">
           <span>{formatDate(chat.updated_at)}</span>
-          <button class="delete-btn" on:click|stopPropagation={() => deleteChat(chat.id)} title="Eliminar">
-            <LucideIcons name="trash-2" size={16} />
+          <button class="bg-none border-none text-text-muted cursor-pointer p-0.5 rounded opacity-60 hover:opacity-100 hover:text-error transition-all" on:click|stopPropagation={() => deleteChat(chat.id)} title="Eliminar">
+            <LucideIcons name="trash-2" size={14} />
           </button>
         </div>
       </button>
     {/each}
 
     {#if chats.length === 0}
-      <p class="empty">No hay chats aún</p>
+      <p class="text-center text-text-muted text-xs py-5">No hay chats aun</p>
     {/if}
   </div>
 </aside>
-
-<style>
-  .sidebar {
-    width: 260px;
-    background: var(--surface, #1a1a1a);
-    border-right: 1px solid var(--border, #333);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    flex-shrink: 0;
-  }
-  .sidebar-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 16px;
-    border-bottom: 1px solid var(--border, #333);
-  }
-  .avatar-img {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-  }
-  .user-name {
-    font-size: 0.9em;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .new-chat-btn {
-    margin: 12px;
-    padding: 10px 14px;
-    border: 1px dashed var(--border, #444);
-    border-radius: 8px;
-    background: transparent;
-    color: var(--text, #fff);
-    font-size: 0.85em;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s;
-  }
-  .new-chat-btn:hover:not(:disabled) {
-    background: var(--surface-2, #2a2a2a);
-  }
-  .new-chat-btn:disabled {
-    opacity: 0.5;
-  }
-  .new-chat-btn span {
-    font-size: 1.2em;
-    font-weight: 300;
-  }
-  .chat-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 8px;
-  }
-  .chat-list::-webkit-scrollbar {
-    width: 4px;
-  }
-  .chat-list::-webkit-scrollbar-thumb {
-    background: var(--surface-2, #333);
-    border-radius: 2px;
-  }
-  .chat-item {
-    width: 100%;
-    text-align: left;
-    padding: 10px 12px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--text, #fff);
-    cursor: pointer;
-    margin-bottom: 2px;
-    transition: background 0.15s;
-  }
-  .chat-item:hover {
-    background: var(--surface-2, #2a2a2a);
-  }
-  .chat-item.active {
-    background: var(--surface-3, #333);
-  }
-  .chat-title {
-    font-size: 0.85em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .chat-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 4px;
-    font-size: 0.7em;
-    color: var(--text-muted, #666);
-  }
-  .delete-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted, #666);
-    cursor: pointer;
-    font-size: 0.9em;
-    padding: 2px 6px;
-    border-radius: 4px;
-    opacity: 0.7;
-    transition: opacity 0.15s, background 0.15s;
-  }
-  .chat-item:hover .delete-btn {
-    opacity: 1;
-  }
-  .delete-btn:hover {
-    background: #ef444420;
-    color: #ef4444;
-  }
-  .empty {
-    text-align: center;
-    color: var(--text-muted, #666);
-    font-size: 0.8em;
-    padding: 20px;
-  }
-</style>
