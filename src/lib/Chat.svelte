@@ -222,8 +222,8 @@
         <div class="header-badges">
           <span class="badge">Function Calling</span>
           <span class="badge badge-green">Streaming</span>
-          {#if conversationId}
-            <span class="badge badge-blue">Sesión activa</span>
+          {#if user?.display_name || user?.username}
+            <span class="badge badge-blue">👤 {user.display_name || user.username}</span>
           {/if}
         </div>
         <button class="logout-btn" on:click={() => dispatch('logout')} title="Cerrar sesión">✕</button>

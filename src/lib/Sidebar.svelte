@@ -224,10 +224,10 @@
     color: var(--text-muted, #666);
     cursor: pointer;
     font-size: 0.9em;
-    padding: 2px 4px;
+    padding: 2px 6px;
     border-radius: 4px;
-    opacity: 0;
-    transition: opacity 0.15s;
+    opacity: 0.7;
+    transition: opacity 0.15s, background 0.15s;
   }
   .chat-item:hover .delete-btn {
     opacity: 1;
