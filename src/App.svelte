@@ -31,7 +31,7 @@
 
 {#if !checked}
   <div class="flex flex-col items-center justify-center h-screen gap-3 bg-bg text-text-faint">
-    <span class="animate-pulse text-accent"><LucideIcons name="hardhat" size={48} /></span>
+    <span class="animate-pulse text-accent"><img src="/rentek-white.png" alt="Rentek" class="w-12 h-12 object-contain" /></span>
     <p>Cargando...</p>
   </div>
 {:else if user}

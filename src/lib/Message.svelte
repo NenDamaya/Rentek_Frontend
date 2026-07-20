@@ -11,7 +11,11 @@
     {role === 'user'
       ? 'bg-accent text-white'
       : 'bg-surface text-text-muted border border-border'}">
-    <LucideIcons name={role === 'user' ? 'user' : 'hardhat'} size={16} />
+    {#if role === 'user'}
+      <LucideIcons name="user" size={16} />
+    {:else}
+      <img src="/rentek-black.png" alt="Rentek" class="w-4 h-4 object-contain" />
+    {/if}
   </div>
 
   <div class="max-w-[85%] sm:max-w-[70%] min-w-0">

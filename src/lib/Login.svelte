@@ -35,7 +35,7 @@
   <div class="bg-surface rounded-2xl p-8 sm:p-10 w-full max-w-sm shadow-xl border border-border">
     <div class="text-center mb-8">
       <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
-        <LucideIcons name="hardhat" size={32} />
+        <img src="/rentek-white.png" alt="Rentek" class="w-8 h-8 object-contain" />
       </div>
       <h1 class="text-xl font-bold mb-1 text-text">Rentek</h1>
       <p class="text-sm m-0 text-text-faint">Asistente de Renta de Maquinaria Pesada</p>
