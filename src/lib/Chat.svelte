@@ -37,19 +37,12 @@
       })
       const data = await res.json()
       tools = data.tools || []
-    } catch {
-      console.warn('No se pudieron cargar tools')
-    }
+    } catch {}
     messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
   })
 
-  function toggleSidebar() {
-    sidebarOpen = !sidebarOpen
-  }
-
-  function closeSidebar() {
-    sidebarOpen = false
-  }
+  function toggleSidebar() { sidebarOpen = !sidebarOpen }
+  function closeSidebar() { sidebarOpen = false }
 
   function handleSelectChat(e) {
     selectChat(e)
@@ -60,29 +53,21 @@
     const chatId = e.detail
     if (chatId === currentChatId) return
     currentChatId = chatId
-
     if (!chatId) {
       conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
       return
     }
-
     const token = localStorage.getItem('rentek_token')
     try {
       const res = await fetch(`${API_BASE}/api/chats/${chatId}/messages`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true',
-          'User-Agent': 'rentek-app/1.0',
-        },
+        headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
       })
       const data = await res.json()
       conversationId = data.conversation_id || null
-      if (data.messages && data.messages.length > 0) {
-        messages = data.messages.filter(m => m.role === 'user' || m.role === 'assistant')
-      } else {
-        messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
-      }
+      messages = data.messages?.length > 0
+        ? data.messages.filter(m => m.role === 'user' || m.role === 'assistant')
+        : [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
     } catch {
       conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
@@ -103,12 +88,7 @@
         try {
           const res = await fetch(`${API_BASE}/api/chats`, {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-              'ngrok-skip-browser-warning': 'true',
-              'User-Agent': 'rentek-app/1.0',
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
           })
           const chat = await res.json()
           currentChatId = chat.id
@@ -126,9 +106,8 @@
     try {
       let fullContent = ''
       let toolCallsFound = []
-      let currentConversationId = conversationId
 
-      for await (const event of chatCompletionsStream(messages, tools, currentConversationId, currentChatId)) {
+      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId)) {
         if (event.type === 'status') {
           loadStatus = event.status
           if (event.status === 'thinking') statusText = 'Pensando...'
@@ -140,7 +119,7 @@
         } else if (event.type === 'token') {
           fullContent += event.content
           const last = messages[messages.length - 1]
-          if (last && last.role === 'assistant') {
+          if (last?.role === 'assistant') {
             messages = [...messages.slice(0, -1), { role: 'assistant', content: fullContent, streaming: true }]
           } else {
             messages = [...messages, { role: 'assistant', content: fullContent, streaming: true }]
@@ -157,7 +136,7 @@
       }
 
       const lastMsg = messages[messages.length - 1]
-      if (lastMsg && lastMsg.role === 'assistant') {
+      if (lastMsg?.role === 'assistant') {
         messages = [...messages.slice(0, -1), { role: 'assistant', content: fullContent, streaming: false }]
       } else {
         messages = [...messages, { role: 'assistant', content: fullContent, streaming: false }]
@@ -181,39 +160,26 @@
     try {
       await fetch(`${API_BASE}/api/chats/${chatId}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
-          'User-Agent': 'rentek-app/1.0',
-        },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
         body: JSON.stringify({ title }),
       })
     } catch {}
   }
 
-  function handleVoice(event) {
-    input = event.detail
-    send()
-  }
+  function handleVoice(event) { input = event.detail; send() }
 
   function scrollDown() {
-    setTimeout(() => {
-      if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight
-    }, 50)
+    setTimeout(() => { if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight }, 50)
   }
 
   function handleKeydown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      send()
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
   }
 </script>
 
-<div class="flex h-screen w-full bg-bg">
+<div class="flex h-screen w-full" style="background: #0c1222">
   {#if sidebarOpen && !isDesktop}
-    <div class="fixed inset-0 bg-black/50 z-40 md:hidden" on:click={closeSidebar} role="presentation"></div>
+    <div class="fixed inset-0 z-40 md:hidden" style="background: rgba(0,0,0,0.6)" on:click={closeSidebar} role="presentation"></div>
   {/if}
 
   <div class="fixed md:relative z-50 h-full transition-transform duration-200 ease-in-out
@@ -222,92 +188,119 @@
   </div>
 
   <div class="flex flex-col h-screen flex-1 min-w-0">
-    <header class="flex items-center gap-3 px-4 py-3 border-b border-border flex-shrink-0 shadow-sm bg-bg">
-      <button class="md:hidden p-1.5 rounded-lg hover:bg-surface-2 transition-colors" on:click={toggleSidebar}>
+    <header class="flex items-center gap-3 px-4 py-3 flex-shrink-0" style="background: #111a2e; border-bottom: 1px solid #1e2d4a">
+      <button class="md:hidden p-2 rounded-lg transition-colors" style="color: #94a3b8" on:click={toggleSidebar}
+        on:mouseenter={e => e.target.style.background = '#1e2d4a'} on:mouseleave={e => e.target.style.background = 'transparent'}>
         <LucideIcons name="menu" size={20} />
       </button>
-      <h1 class="text-sm md:text-base font-semibold flex items-center gap-2">
-        <LucideIcons name="hardhat" size={20} />
-        <span class="hidden sm:inline">Asesor de Maquinaria</span>
-      </h1>
-      <div class="flex items-center gap-2 ml-auto">
-        <div class="hidden sm:flex gap-1.5">
-          <span class="text-[0.6rem] uppercase tracking-wider bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">Function Calling</span>
-          <span class="text-[0.6rem] uppercase tracking-wider bg-success/20 text-success px-2 py-0.5 rounded-full font-medium">Streaming</span>
-          {#if user?.display_name || user?.username}
-            <span class="text-[0.6rem] uppercase tracking-wider bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-              <LucideIcons name="user" size={10} /> {user.display_name || user.username}
-            </span>
-          {/if}
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #3b82f6, #2563eb)">
+          <LucideIcons name="hardhat" size={18} />
         </div>
-        <button class="flex items-center gap-1.5 text-xs text-text-muted border border-border px-2.5 py-1.5 rounded-lg hover:bg-error/10 hover:text-error hover:border-error transition-colors" on:click={() => dispatch('logout')} title="Cerrar sesión">
+        <div>
+          <h1 class="text-sm font-semibold" style="color: #e2e8f0">Asesor de Maquinaria</h1>
+          <p class="text-[0.6rem] hidden sm:block" style="color: #64748b">Renta de equipo pesado</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 ml-auto">
+        <div class="hidden md:flex items-center gap-1.5">
+          <span class="text-[0.6rem] px-2 py-0.5 rounded-full font-medium" style="background: rgba(59,130,246,0.15); color: #60a5fa">AI</span>
+          <span class="text-[0.6rem] px-2 py-0.5 rounded-full font-medium" style="background: rgba(34,197,94,0.15); color: #4ade80">Live</span>
+        </div>
+        {#if user?.display_name || user?.username}
+          <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg" style="background: #1a2540">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold" style="background: #3b82f6; color: white">
+              {(user.display_name || user.username)[0]?.toUpperCase()}
+            </div>
+            <span class="text-xs font-medium" style="color: #cbd5e1">{user.display_name || user.username}</span>
+          </div>
+        {/if}
+        <button class="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all" style="color: #94a3b8; background: #1a2540"
+          on:mouseenter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#f87171' }}
+          on:mouseleave={e => { e.currentTarget.style.background = '#1a2540'; e.currentTarget.style.color = '#94a3b8' }}
+          on:click={() => dispatch('logout')} title="Cerrar sesion">
           <LucideIcons name="log-out" size={14} />
-          <span class="hidden sm:inline">Cerrar sesión</span>
+          <span class="hidden sm:inline">Salir</span>
         </button>
       </div>
     </header>
 
-    <div class="flex-1 overflow-y-auto p-4 md:p-5 scroll-smooth" bind:this={chatContainer}>
-      {#each messages as msg, i (i)}
-        <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
-      {/each}
-      {#if loading}
-        <div class="flex gap-1 py-3 ml-11">
-          {#if loadStatus === 'thinking'}
-            <span class="relative flex items-center justify-center w-8 h-8">
-              <span class="absolute w-full h-full rounded-full border-2 border-purple-500 animate-ping opacity-60"></span>
-              <LucideIcons name="brain" size={20} />
-            </span>
-          {:else if loadStatus === 'searching'}
-            <span class="relative flex items-center justify-center w-8 h-8">
-              <span class="absolute w-full h-full rounded-full border-2 border-blue-500 animate-ping opacity-60"></span>
-              <LucideIcons name="search" size={20} />
-            </span>
-          {:else if loadStatus === 'executing'}
-            <span class="relative flex items-center justify-center w-8 h-8">
-              <span class="absolute w-full h-full rounded-full border-2 border-amber-500 animate-ping opacity-60"></span>
-              <LucideIcons name="cog" size={20} />
-            </span>
-          {:else}
-            <span class="w-2 h-2 bg-text-muted rounded-full animate-bounce" style="animation-delay:0s"></span>
-            <span class="w-2 h-2 bg-text-muted rounded-full animate-bounce" style="animation-delay:0.2s"></span>
-            <span class="w-2 h-2 bg-text-muted rounded-full animate-bounce" style="animation-delay:0.4s"></span>
-          {/if}
-        </div>
-      {/if}
-      {#if statusText}
-        <div class="flex items-center gap-1.5 ml-11 px-3 py-2 text-xs text-text-muted bg-surface-2 rounded-lg w-fit mb-2
-          {loadStatus === 'thinking' ? 'border-l-3 border-purple-500' : ''}
-          {loadStatus === 'searching' ? 'border-l-3 border-blue-500' : ''}
-          {loadStatus === 'executing' ? 'border-l-3 border-amber-500' : ''}">
-          {#if loadStatus === 'thinking'}
-            <LucideIcons name="brain" size={14} />
-          {:else if loadStatus === 'searching'}
-            <LucideIcons name="search" size={14} />
-          {:else if loadStatus === 'executing'}
-            <LucideIcons name="cog" size={14} />
-          {:else}
-            <LucideIcons name="zap" size={14} />
-          {/if}
-          {statusText}
-        </div>
-      {/if}
+    <div class="flex-1 overflow-y-auto scroll-smooth" style="background: #0c1222" bind:this={chatContainer}>
+      <div class="max-w-3xl mx-auto px-4 py-6">
+        {#each messages as msg, i (i)}
+          <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
+        {/each}
+        {#if loading}
+          <div class="flex items-center gap-3 py-4 ml-11">
+            {#if loadStatus === 'thinking'}
+              <div class="relative flex items-center justify-center w-9 h-9">
+                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #a855f7; opacity: 0.4"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: rgba(168,85,247,0.15)">
+                  <LucideIcons name="brain" size={18} />
+                </div>
+              </div>
+              <span class="text-sm" style="color: #a855f7">Pensando...</span>
+            {:else if loadStatus === 'searching'}
+              <div class="relative flex items-center justify-center w-9 h-9">
+                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #3b82f6; opacity: 0.4"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: rgba(59,130,246,0.15)">
+                  <LucideIcons name="search" size={18} />
+                </div>
+              </div>
+              <span class="text-sm" style="color: #3b82f6">Buscando...</span>
+            {:else if loadStatus === 'executing'}
+              <div class="relative flex items-center justify-center w-9 h-9">
+                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #f59e0b; opacity: 0.4"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: rgba(245,158,11,0.15)">
+                  <LucideIcons name="cog" size={18} />
+                </div>
+              </div>
+              <span class="text-sm" style="color: #f59e0b">Ejecutando...</span>
+            {:else}
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #64748b; animation-delay:0s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #64748b; animation-delay:0.15s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #64748b; animation-delay:0.3s"></span>
+              </div>
+            {/if}
+          </div>
+        {/if}
+        {#if statusText && loadStatus !== 'thinking' && loadStatus !== 'searching' && loadStatus !== 'executing'}
+          <div class="flex items-center gap-2 ml-11 px-3 py-2 text-xs rounded-lg w-fit mb-3"
+            style="background: #1a2540; color: #94a3b8; border-left: 3px solid #3b82f6">
+            <LucideIcons name="zap" size={12} />
+            {statusText}
+          </div>
+        {/if}
+      </div>
     </div>
 
-    <form class="flex gap-2 p-3 border-t border-border flex-shrink-0 items-end bg-bg shadow-[0_-2px_10px_rgba(0,0,0,0.1)]" on:submit|preventDefault={send}>
-      <VoiceButton on:transcript={handleVoice} disabled={loading} />
-      <textarea
-        bind:value={input}
-        on:keydown={handleKeydown}
-        placeholder="Pregunta sobre maquinaria pesada..."
-        rows="1"
-        disabled={loading}
-        class="flex-1 bg-surface border border-border rounded-xl text-text px-3 py-2.5 text-sm font-[inherit] resize-none outline-none leading-relaxed max-h-[120px] min-h-[44px] focus:border-primary disabled:opacity-50 transition-colors"
-      ></textarea>
-      <button type="submit" disabled={loading || !input.trim()}
-        class="w-[44px] h-[44px] rounded-full border-none bg-primary text-white text-lg cursor-pointer flex-shrink-0 flex items-center justify-center hover:bg-primary-hover disabled:opacity-40 disabled:cursor-default transition-colors">
-        {loading ? '...' : '\u27A4'}
-      </button>
-    </form>
+    <div class="flex-shrink-0" style="background: #111a2e; border-top: 1px solid #1e2d4a">
+      <form class="max-w-3xl mx-auto flex gap-3 px-4 py-3 items-end" on:submit|preventDefault={send}>
+        <VoiceButton on:transcript={handleVoice} disabled={loading} />
+        <div class="flex-1 relative">
+          <textarea
+            bind:value={input}
+            on:keydown={handleKeydown}
+            placeholder="Escribe tu pregunta..."
+            rows="1"
+            disabled={loading}
+            class="w-full resize-none outline-none text-sm leading-relaxed max-h-[120px] min-h-[44px] transition-colors"
+            style="background: #1a2540; border: 1px solid #2a3a5c; border-radius: 12px; color: #e2e8f0; padding: 11px 16px; font-family: inherit"
+            on:focus={e => e.target.style.borderColor = '#3b82f6'}
+            on:blur={e => e.target.style.borderColor = '#2a3a5c'}
+          ></textarea>
+        </div>
+        <button type="submit" disabled={loading || !input.trim()}
+          class="w-[44px] h-[44px] rounded-full border-none cursor-pointer flex-shrink-0 flex items-center justify-center transition-all text-white"
+          style="background: {(loading || !input.trim()) ? '#1e2d4a' : '#3b82f6'}; color: {(loading || !input.trim()) ? '#475569' : 'white'}">
+          {#if loading}
+            <span class="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full"></span>
+          {:else}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          {/if}
+        </button>
+      </form>
+    </div>
   </div>
 </div>

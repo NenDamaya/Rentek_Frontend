@@ -1,133 +1,186 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte'
-  import { API_BASE } from './api.js'
+  import { onMount, createEventDispatcher } from 'svelte'
   import LucideIcons from './LucideIcons.svelte'
+  import { API_BASE } from './api.js'
 
-  const dispatch = createEventDispatcher()
-
-  export let currentChatId = null
   export let user = null
+  export let currentChatId = null
   export let refreshKey = 0
   export let isDesktop = false
+  const dispatch = createEventDispatcher()
 
   let chats = []
-  let loading = false
+  let loadingChats = true
+  let deleteConfirmId = null
 
-  $: if (refreshKey >= 0) loadChats()
+  $: refreshKey, loadChats()
 
   onMount(loadChats)
 
   async function loadChats() {
     const token = localStorage.getItem('rentek_token')
     if (!token) return
+    loadingChats = true
     try {
       const res = await fetch(`${API_BASE}/api/chats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true',
-          'User-Agent': 'rentek-app/1.0',
-        },
+        headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
       })
-      const data = await res.json()
-      chats = data.chats || []
+      if (res.ok) {
+        const data = await res.json()
+        chats = data.chats || []
+      }
     } catch {}
+    loadingChats = false
   }
 
-  async function newChat() {
-    const token = localStorage.getItem('rentek_token')
-    if (!token) return
-    loading = true
-    try {
-      const res = await fetch(`${API_BASE}/api/chats`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
-          'User-Agent': 'rentek-app/1.0',
-        },
-      })
-      const chat = await res.json()
-      chats = [{ ...chat, message_count: 0 }, ...chats]
-      dispatch('select', chat.id)
-    } catch {}
-    loading = false
+  function selectChat(chatId) {
+    dispatch('select', chatId)
+    deleteConfirmId = null
   }
 
-  async function deleteChat(chatId) {
+  function newChat() {
+    selectChat(null)
+    if (!isDesktop) dispatch('close')
+  }
+
+  function confirmDelete(e, chatId) {
+    e.stopPropagation()
+    deleteConfirmId = deleteConfirmId === chatId ? null : chatId
+  }
+
+  async function deleteChat(e, chatId) {
+    e.stopPropagation()
     const token = localStorage.getItem('rentek_token')
     if (!token) return
     try {
       await fetch(`${API_BASE}/api/chats/${chatId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true',
-          'User-Agent': 'rentek-app/1.0',
-        },
+        headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
       })
-      chats = chats.filter(c => c.id !== chatId)
-      if (currentChatId === chatId) dispatch('select', null)
+      if (currentChatId === chatId) {
+        selectChat(null)
+      }
+      await loadChats()
     } catch {}
+    deleteConfirmId = null
   }
 
-  function selectChat(id) {
-    dispatch('select', id)
-  }
-
-  function formatDate(iso) {
-    if (!iso) return ''
-    const d = new Date(iso)
+  function getRelativeTime(date) {
     const now = new Date()
-    const diff = now - d
-    if (diff < 86400000) return 'Hoy'
-    if (diff < 172800000) 'Ayer'
-    return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })
+    const d = new Date(date)
+    const diffMs = now - d
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMins / 60)
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffMins < 1) return 'Ahora'
+    if (diffMins < 60) return `${diffMins}m`
+    if (diffHours < 24) return `${diffHours}h`
+    return `${diffDays}d`
   }
 </script>
 
-<aside class="flex flex-col h-full w-72 md:w-64 bg-surface border-r border-border shadow-lg">
-  <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
-    <div class="flex items-center gap-2 min-w-0">
-      {#if user?.picture}
-        <img src={user.picture} alt="" class="w-7 h-7 rounded-full flex-shrink-0" />
-      {:else}
-        <span class="w-7 h-7 rounded-full bg-surface-2 flex items-center justify-center flex-shrink-0">
-          <LucideIcons name="user" size={14} />
-        </span>
-      {/if}
-      <span class="text-sm font-medium truncate">{user?.display_name || user?.username || 'Usuario'}</span>
+<aside class="h-full flex flex-col" style="width: 260px; background: #0f172a; border-right: 1px solid #1e2d4a">
+  <div class="flex items-center justify-between p-4 flex-shrink-0" style="border-bottom: 1px solid #1e2d4a">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center shadow-md"
+        style="background: linear-gradient(135deg, #2563eb, #3b82f6)">
+        <LucideIcons name="hardhat" size={16} />
+      </div>
+      <span class="text-sm font-semibold" style="color: #e2e8f0">Rentek</span>
     </div>
     {#if !isDesktop}
-      <button class="p-1.5 rounded-lg hover:bg-surface-2 transition-colors text-text-muted" on:click={() => dispatch('close')}>
+      <button class="p-2 rounded-lg transition-colors" style="color: #94a3b8"
+        on:mouseenter={e => e.target.style.background = '#1e2d4a'} on:mouseleave={e => e.target.style.background = 'transparent'}
+        on:click={() => dispatch('close')}>
         <LucideIcons name="x" size={18} />
       </button>
     {/if}
   </div>
 
-  <button class="mx-3 mt-3 mb-2 py-2.5 px-3 border border-dashed border-border rounded-lg bg-transparent text-text text-xs cursor-pointer flex items-center gap-2 transition-colors hover:bg-surface-2 disabled:opacity-50" on:click={newChat} disabled={loading}>
-    <span class="text-base font-light">+</span> Nuevo chat
+  <button class="flex items-center gap-2.5 w-[calc(100%-24px)] mx-3 mt-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer border-none"
+    style="background: #1a2540; color: #e2e8f0; border: 1px solid #2a3a5c"
+    on:mouseenter={e => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#1e2d4a' }}
+    on:mouseleave={e => { e.currentTarget.style.borderColor = '#2a3a5c'; e.currentTarget.style.background = '#1a2540' }}
+    on:click={newChat}>
+    <LucideIcons name="search" size={16} />
+    <span>Nueva consulta</span>
   </button>
 
-  <div class="flex-1 overflow-y-auto px-2">
-    {#each chats as chat (chat.id)}
-      <button
-        class="w-full text-left py-2.5 px-3 border-none rounded-lg bg-transparent text-text cursor-pointer mb-0.5 transition-colors hover:bg-surface-2 text-sm
-          {chat.id === currentChatId ? 'bg-surface-2' : ''}"
-        on:click={() => selectChat(chat.id)}
-      >
-        <div class="truncate">{chat.title}</div>
-        <div class="flex justify-between items-center mt-1 text-[0.65rem] text-text-muted">
-          <span>{formatDate(chat.updated_at)}</span>
-          <button class="bg-none border-none text-text-muted cursor-pointer p-0.5 rounded opacity-60 hover:opacity-100 hover:text-error transition-all" on:click|stopPropagation={() => deleteChat(chat.id)} title="Eliminar">
-            <LucideIcons name="trash-2" size={14} />
-          </button>
-        </div>
-      </button>
-    {/each}
+  <div class="flex-1 overflow-y-auto p-2 space-y-1 mt-2">
+    {#if loadingChats}
+      <div class="flex flex-col items-center justify-center py-8 gap-2">
+        <span class="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" style="color: #475569"></span>
+        <span class="text-xs" style="color: #475569">Cargando...</span>
+      </div>
+    {:else if chats.length === 0}
+      <div class="flex flex-col items-center justify-center py-8 gap-2">
+        <LucideIcons name="bot" size={28} />
+        <span class="text-xs" style="color: #475569">Sin conversaciones</span>
+      </div>
+    {:else}
+      {#each chats as chat, i (chat.id)}
+        <button class="relative group flex items-center gap-2.5 w-[calc(100%-8px)] px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer border-none"
+          style="background: {currentChatId === chat.id ? '#1e2d4a' : 'transparent'}; color: {currentChatId === chat.id ? '#e2e8f0' : '#94a3b8'}"
+          on:mouseenter={e => { if (currentChatId !== chat.id) e.currentTarget.style.background = '#1a2540' }}
+          on:mouseleave={e => { if (currentChatId !== chat.id) e.currentTarget.style.background = 'transparent' }}
+          on:click={() => selectChat(chat.id)}>
 
-    {#if chats.length === 0}
-      <p class="text-center text-text-muted text-xs py-5">No hay chats aun</p>
+          {#if deleteConfirmId === chat.id}
+            <div class="absolute inset-0 flex items-center justify-between px-3 rounded-xl z-10" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3)">
+              <span class="text-[0.65rem] font-medium" style="color: #f87171">Eliminar?</span>
+              <div class="flex gap-1">
+                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none"
+                  style="background: #ef4444; color: white"
+                  on:click={(e) => deleteChat(e, chat.id)}>Si</button>
+                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none"
+                  style="background: #1e2d4a; color: #94a3b8"
+                  on:click={(e) => { e.stopPropagation(); deleteConfirmId = null }}>No</button>
+              </div>
+            </div>
+          {/if}
+
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            style="background: {currentChatId === chat.id ? 'rgba(59,130,246,0.2)' : '#1a2540'}">
+            <LucideIcons name="bot" size={14} />
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium truncate m-0" style="color: {currentChatId === chat.id ? '#e2e8f0' : '#cbd5e1'}">
+              {chat.title || 'Nueva conversación'}
+            </p>
+            <p class="text-[0.6rem] m-0" style="color: #475569">
+              {getRelativeTime(chat.updated_at || chat.created_at)}
+            </p>
+          </div>
+
+          {#if !deleteConfirmId}
+            <button class="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-none"
+              style="background: transparent; color: #f87171"
+              on:mouseenter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
+              on:mouseleave={e => e.currentTarget.style.background = 'transparent'}
+              on:click={(e) => confirmDelete(e, chat.id)} title="Eliminar chat">
+              <LucideIcons name="trash-2" size={13} />
+            </button>
+          {/if}
+        </button>
+      {/each}
     {/if}
   </div>
+
+  {#if user}
+    <div class="flex items-center gap-2.5 p-3 flex-shrink-0" style="border-top: 1px solid #1e2d4a">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+        style="background: {user.avatar_url ? 'transparent' : 'linear-gradient(135deg, #2563eb, #3b82f6)'}; overflow: hidden">
+        {#if user.avatar_url}
+          <img src={user.avatar_url} alt="" class="w-full h-full object-cover" />
+        {:else}
+          <span class="text-[0.6rem] font-bold text-white">{(user.display_name || user.username || 'U')[0]?.toUpperCase()}</span>
+        {/if}
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-medium truncate m-0" style="color: #e2e8f0">{user.display_name || user.username}</p>
+        <p class="text-[0.6rem] truncate m-0" style="color: #64748b">{user.email}</p>
+      </div>
+    </div>
+  {/if}
 </aside>

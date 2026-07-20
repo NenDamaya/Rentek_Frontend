@@ -1,98 +1,158 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
+  import { onMount, onDestroy, createEventDispatcher } from 'svelte'
   import LucideIcons from './LucideIcons.svelte'
+  import { API_BASE } from './api.js'
 
   export let disabled = false
-
   const dispatch = createEventDispatcher()
 
-  let recording = false
+  let isRecording = false
+  let speechSupported = false
+  let mediaRecorderSupported = false
   let recognition = null
-  let supported = false
+  let audioChunks = []
+  let mediaStream = null
+  let mediaRecorder = null
 
-  if (typeof window !== 'undefined') {
+  onMount(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (SpeechRecognition) {
-      supported = true
-      recognition = new SpeechRecognition()
-      recognition.lang = 'es-MX'
-      recognition.continuous = false
-      recognition.interimResults = false
+    speechSupported = !!SpeechRecognition
+    mediaRecorderSupported = !!window.MediaRecorder
+  })
 
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript
-        dispatch('transcript', transcript)
-        recording = false
-      }
+  onDestroy(() => {
+    if (recognition) recognition.abort()
+    if (mediaStream) mediaStream.getTracks().forEach(t => t.stop())
+  })
 
-      recognition.onerror = () => {
-        recording = false
-      }
+  async function toggle() {
+    if (disabled) return
+    if (isRecording) { stop(); return }
 
-      recognition.onend = () => {
-        recording = false
-      }
+    if (speechSupported) {
+      startWebSpeech()
+    } else if (mediaRecorderSupported) {
+      await startMediaRecorder()
+    } else {
+      dispatch('transcript', 'No hay soporte de voz disponible')
     }
   }
 
-  function toggleRecording() {
-    if (!recognition) return
-    if (recording) {
-      recognition.stop()
-      recording = false
-    } else {
-      recognition.start()
-      recording = true
+  function startWebSpeech() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    recognition = new SpeechRecognition()
+    recognition.lang = 'es-ES'
+    recognition.continuous = false
+    recognition.interimResults = false
+
+    recognition.onstart = () => { isRecording = true }
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript
+      dispatch('transcript', transcript)
     }
+
+    recognition.onerror = (event) => {
+      isRecording = false
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        console.error('Speech error:', event.error)
+      }
+    }
+
+    recognition.onend = () => { isRecording = false }
+
+    try { recognition.start() } catch { isRecording = false }
+  }
+
+  async function startMediaRecorder() {
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      audioChunks = []
+
+      mediaRecorder = new MediaRecorder(mediaStream, { mimeType: getSupportedMimeType() })
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunks.push(event.data)
+      }
+
+      mediaRecorder.onstop = async () => {
+        isRecording = false
+        mediaStream.getTracks().forEach(t => t.stop())
+        mediaStream = null
+
+        if (audioChunks.length === 0) return
+        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType })
+        await sendAudioForTranscription(blob)
+      }
+
+      mediaRecorder.start()
+      isRecording = true
+
+      setTimeout(() => {
+        if (isRecording && mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop()
+        }
+      }, 15000)
+    } catch (err) {
+      isRecording = false
+      console.error('MediaRecorder error:', err)
+    }
+  }
+
+  function getSupportedMimeType() {
+    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4']
+    for (const t of types) {
+      if (MediaRecorder.isTypeSupported(t)) return t
+    }
+    return 'audio/webm'
+  }
+
+  async function sendAudioForTranscription(blob) {
+    try {
+      const formData = new FormData()
+      formData.append('audio', blob, 'recording.webm')
+      const token = localStorage.getItem('rentek_token')
+      const headers = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
+      const res = await fetch(`${API_BASE}/api/transcribe`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        if (data.text) dispatch('transcript', data.text)
+      } else {
+        console.error('Transcription failed:', res.status)
+      }
+    } catch (err) {
+      console.error('Transcription error:', err)
+    }
+  }
+
+  function stop() {
+    if (recognition) { recognition.abort(); recognition = null }
+    if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop() }
+    else { isRecording = false }
   }
 </script>
 
-{#if supported}
-  <button
-    class="voice-btn"
-    class:recording
-    on:click={toggleRecording}
-    {disabled}
-    title={recording ? 'Detener grabación' : 'Grabar voz'}
-    type="button"
-  >
-    {#if recording}
-      <LucideIcons name="square" size={18} />
-    {:else}
-      <LucideIcons name="mic" size={18} />
-    {/if}
-  </button>
-{/if}
-
-<style>
-  .voice-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    color: var(--color-text);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .voice-btn:hover:not(:disabled) {
-    background: var(--color-surface-2);
-  }
-  .voice-btn.recording {
-    background: #ef4444;
-    border-color: #ef4444;
-    animation: pulse 1.5s infinite;
-  }
-  .voice-btn:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-  }
-</style>
+<button class="flex items-center justify-center rounded-full transition-all flex-shrink-0 cursor-pointer border-none"
+  style="width: 44px; height: 44px; {isRecording
+    ? 'background: #ef4444; color: white; box-shadow: 0 0 20px rgba(239,68,68,0.4)'
+    : disabled
+      ? 'background: #1e2d4a; color: #475569'
+      : 'background: #1a2540; color: #94a3b8; border: 1px solid #2a3a5c'}"
+  on:click={toggle}
+  on:mouseenter={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.color = '#60a5fa' }}}
+  on:mouseleave={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#2a3a5c'; e.currentTarget.style.color = '#94a3b8' }}}
+  disabled={disabled}
+  title={isRecording ? 'Detener' : speechSupported ? 'Hablar (Web Speech)' : mediaRecorderSupported ? 'Hablar (Grabar audio)' : 'Sin soporte de voz'}>
+  {#if isRecording}
+    <LucideIcons name="square" size={18} />
+  {:else}
+    <LucideIcons name="mic" size={18} />
+  {/if}
+</button>
