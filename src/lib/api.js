@@ -6,9 +6,10 @@ const HEADERS = {
   'User-Agent': 'rentek-app/1.0',
 }
 
-export async function chatCompletions(messages, tools, conversationId = null) {
+export async function chatCompletions(messages, tools, conversationId = null, userName = null) {
   const body = { messages, tools }
   if (conversationId) body.conversation_id = conversationId
+  if (userName) body.user_name = userName
 
   const res = await fetch(`${API_BASE}/v1/chat/completions`, {
     method: 'POST',
@@ -22,10 +23,11 @@ export async function chatCompletions(messages, tools, conversationId = null) {
   return res.json()
 }
 
-export async function* chatCompletionsStream(messages, tools, conversationId = null, chatId = null, signal = null) {
+export async function* chatCompletionsStream(messages, tools, conversationId = null, chatId = null, signal = null, userName = null) {
   const body = { messages, tools, stream: true }
   if (conversationId) body.conversation_id = conversationId
   if (chatId) body.chat_id = chatId
+  if (userName) body.user_name = userName
 
   const res = await fetch(`${API_BASE}/v1/chat/completions/stream`, {
     method: 'POST',

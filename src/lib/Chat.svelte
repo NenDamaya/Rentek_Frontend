@@ -109,7 +109,8 @@
       let fullContent = ''
       let toolCallsFound = []
 
-      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId, abortController.signal)) {
+      const userName = user?.display_name || user?.username || null
+      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId, abortController.signal, userName)) {
         if (event.type === 'status') {
           loadStatus = event.status
           if (event.status === 'thinking') statusText = 'Pensando...'
