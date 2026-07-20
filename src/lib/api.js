@@ -1,12 +1,17 @@
 export const API_BASE = import.meta.env.VITE_API_URL || ''
 
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'ngrok-skip-browser-warning': 'true',
+}
+
 export async function chatCompletions(messages, tools, conversationId = null) {
   const body = { messages, tools }
   if (conversationId) body.conversation_id = conversationId
 
   const res = await fetch(`${API_BASE}/v1/chat/completions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: HEADERS,
     body: JSON.stringify(body),
   })
   if (!res.ok) {
@@ -22,7 +27,7 @@ export async function* chatCompletionsStream(messages, tools, conversationId = n
 
   const res = await fetch(`${API_BASE}/v1/chat/completions/stream`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: HEADERS,
     body: JSON.stringify(body),
   })
 
@@ -57,7 +62,9 @@ export async function* chatCompletionsStream(messages, tools, conversationId = n
 }
 
 export async function getObservabilityLogs(limit = 50) {
-  const res = await fetch(`${API_BASE}/api/observability?limit=${limit}`)
+  const res = await fetch(`${API_BASE}/api/observability?limit=${limit}`, {
+    headers: { 'ngrok-skip-browser-warning': 'true' },
+  })
   if (!res.ok) throw new Error(`API error ${res.status}`)
   return res.json()
 }

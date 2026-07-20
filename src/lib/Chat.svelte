@@ -15,7 +15,9 @@
 
   onMount(async () => {
     try {
-      const res = await fetch(`${API_BASE}/v1/tools`)
+      const res = await fetch(`${API_BASE}/v1/tools`, {
+        headers: { 'ngrok-skip-browser-warning': 'true' },
+      })
       const data = await res.json()
       tools = data.tools || []
     } catch {
