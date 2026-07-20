@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import Login from './lib/Login.svelte'
   import Chat from './lib/Chat.svelte'
+  import LucideIcons from './lib/LucideIcons.svelte'
 
   let user = null
   let checked = false
@@ -30,7 +31,7 @@
 
 {#if !checked}
   <div class="loading-screen">
-    <span class="logo">🏗️</span>
+    <span class="logo"><LucideIcons name="hardhat" size={48} /></span>
     <p>Cargando...</p>
   </div>
 {:else if user}
@@ -50,8 +51,8 @@
     color: var(--text-muted, #888);
   }
   .logo {
-    font-size: 3em;
     animation: pulse 1.5s ease-in-out infinite;
+    color: var(--primary, #3b82f6);
   }
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }

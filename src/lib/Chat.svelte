@@ -3,6 +3,7 @@
   import Message from './Message.svelte'
   import VoiceButton from './VoiceButton.svelte'
   import Sidebar from './Sidebar.svelte'
+  import LucideIcons from './LucideIcons.svelte'
   import { chatCompletions, chatCompletionsStream, API_BASE } from './api.js'
 
   export let user = null
@@ -215,17 +216,17 @@
 
   <div class="chat">
     <header class="header">
-      <h1>🏗️ Asesor de Maquinaria</h1>
+      <h1><LucideIcons name="hardhat" size={22} /> Asesor de Maquinaria</h1>
       <div class="header-right">
         <div class="header-badges">
           <span class="badge">Function Calling</span>
           <span class="badge badge-green">Streaming</span>
           {#if user?.display_name || user?.username}
-            <span class="badge badge-blue">👤 {user.display_name || user.username}</span>
+            <span class="badge badge-blue"><LucideIcons name="user" size={14} /> {user.display_name || user.username}</span>
           {/if}
         </div>
         <button class="logout-btn" on:click={() => dispatch('logout')} title="Cerrar sesión">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+          <LucideIcons name="log-out" size={16} />
           <span>Cerrar sesión</span>
         </button>
       </div>
@@ -240,17 +241,17 @@
           {#if loadStatus === 'thinking'}
             <span class="status-indicator thinking">
               <span class="pulse-ring" />
-              <span class="status-emoji">🧠</span>
+              <span class="status-emoji"><LucideIcons name="brain" size={20} /></span>
             </span>
           {:else if loadStatus === 'searching'}
             <span class="status-indicator searching">
               <span class="pulse-ring search-ring" />
-              <span class="status-emoji">🔍</span>
+              <span class="status-emoji"><LucideIcons name="search" size={20} /></span>
             </span>
           {:else if loadStatus === 'executing'}
             <span class="status-indicator executing">
               <span class="pulse-ring exec-ring" />
-              <span class="status-emoji">⚙️</span>
+              <span class="status-emoji"><LucideIcons name="cog" size={20} /></span>
             </span>
           {:else}
             <span class="dot" /><span class="dot" /><span class="dot" />
@@ -260,13 +261,13 @@
       {#if statusText}
         <div class="status-bar" class:thinking={loadStatus === 'thinking'} class:searching={loadStatus === 'searching'} class:executing={loadStatus === 'executing'}>
           {#if loadStatus === 'thinking'}
-            <span class="status-icon">🧠</span>
+            <span class="status-icon"><LucideIcons name="brain" size={14} /></span>
           {:else if loadStatus === 'searching'}
-            <span class="status-icon">🔍</span>
+            <span class="status-icon"><LucideIcons name="search" size={14} /></span>
           {:else if loadStatus === 'executing'}
-            <span class="status-icon">⚙️</span>
+            <span class="status-icon"><LucideIcons name="cog" size={14} /></span>
           {:else}
-            <span class="status-icon">⚡</span>
+            <span class="status-icon"><LucideIcons name="zap" size={14} /></span>
           {/if}
           {statusText}
         </div>

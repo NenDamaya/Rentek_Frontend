@@ -1,4 +1,6 @@
 <script>
+  import LucideIcons from './LucideIcons.svelte'
+
   export let name
   export let arguments_
 
@@ -21,7 +23,7 @@
 
 <div class="tool-call" class:collapsed>
   <button class="tool-header" on:click={toggle}>
-    <span class="tool-icon">🔧</span>
+    <span class="tool-icon"><LucideIcons name="wrench" size={14} /></span>
     <span class="tool-name">{name}</span>
     <span class="tool-toggle">{collapsed ? '▼' : '▲'}</span>
   </button>

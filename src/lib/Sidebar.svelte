@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte'
   import { API_BASE } from './api.js'
+  import LucideIcons from './LucideIcons.svelte'
 
   const dispatch = createEventDispatcher()
 
@@ -91,7 +92,7 @@
     {#if user?.picture}
       <img src={user.picture} alt="" class="avatar-img" />
     {:else}
-      <span class="user-avatar">👤</span>
+      <span class="user-avatar"><LucideIcons name="user" size={16} /></span>
     {/if}
     <span class="user-name">{user?.display_name || user?.username || 'Usuario'}</span>
   </div>
@@ -111,7 +112,7 @@
         <div class="chat-meta">
           <span>{formatDate(chat.updated_at)}</span>
           <button class="delete-btn" on:click|stopPropagation={() => deleteChat(chat.id)} title="Eliminar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            <LucideIcons name="trash-2" size={16} />
           </button>
         </div>
       </button>

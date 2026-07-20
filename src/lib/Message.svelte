@@ -1,5 +1,6 @@
 <script>
   import ToolCall from './ToolCall.svelte'
+  import LucideIcons from './LucideIcons.svelte'
 
   export let role
   export let content
@@ -14,11 +15,11 @@
 <div class="message" class:user={isUser} class:assistant={isAssistant} class:tool={isTool}>
   <div class="avatar">
     {#if isUser}
-      👤
+      <LucideIcons name="user" size={16} />
     {:else if isTool}
-      ⚙️
+      <LucideIcons name="wrench" size={14} />
     {:else}
-      🤖
+      <LucideIcons name="bot" size={16} />
     {/if}
   </div>
   <div class="bubble">

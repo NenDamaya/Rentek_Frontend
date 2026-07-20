@@ -1,6 +1,7 @@
 <script>
   import { onMount, createEventDispatcher } from 'svelte'
   import { API_BASE } from './api.js'
+  import LucideIcons from './LucideIcons.svelte'
 
   const dispatch = createEventDispatcher()
   let error = ''
@@ -33,7 +34,7 @@
 <div class="login-wrapper">
   <div class="login-card">
     <div class="login-header">
-      <span class="logo">🏗️</span>
+      <span class="logo"><LucideIcons name="hardhat" size={40} /></span>
       <h1>Rentek</h1>
       <p>Asistente de Renta de Maquinaria Pesada</p>
     </div>
@@ -78,9 +79,9 @@
     margin-bottom: 32px;
   }
   .logo {
-    font-size: 2.5em;
     display: block;
     margin-bottom: 8px;
+    color: var(--primary, #3b82f6);
   }
   .login-header h1 {
     font-size: 1.5em;
