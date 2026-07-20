@@ -149,14 +149,12 @@
         messages = [...messages.slice(0, -1), {
           role: 'assistant',
           content: fullContent,
-          toolCalls: toolCallsFound,
           streaming: false,
         }]
       } else {
         messages = [...messages, {
           role: 'assistant',
           content: fullContent,
-          toolCalls: toolCallsFound,
           streaming: false,
         }]
       }
@@ -237,7 +235,7 @@
       {#each messages as msg, i (i)}
         <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
       {/each}
-      {#if loading && !streaming}
+      {#if loading}
         <div class="typing">
           {#if loadStatus === 'thinking'}
             <span class="status-indicator thinking">
