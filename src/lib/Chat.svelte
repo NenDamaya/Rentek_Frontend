@@ -226,7 +226,10 @@
             <span class="badge badge-blue">👤 {user.display_name || user.username}</span>
           {/if}
         </div>
-        <button class="logout-btn" on:click={() => dispatch('logout')} title="Cerrar sesión">✕</button>
+        <button class="logout-btn" on:click={() => dispatch('logout')} title="Cerrar sesión">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+          <span>Cerrar sesión</span>
+        </button>
       </div>
     </header>
 
@@ -336,16 +339,21 @@
   .badge-blue { background: #3b82f6; }
   .logout-btn {
     background: none;
-    border: none;
+    border: 1px solid var(--border, #444);
     color: var(--text-muted, #888);
     cursor: pointer;
-    font-size: 1em;
-    padding: 4px 8px;
+    font-size: 0.75em;
+    padding: 6px 12px;
     border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, color 0.15s;
   }
   .logout-btn:hover {
     background: #ef444420;
     color: #ef4444;
+    border-color: #ef4444;
   }
   .messages {
     flex: 1;
