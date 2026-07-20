@@ -177,9 +177,9 @@
   }
 </script>
 
-<div class="flex h-screen w-full" style="background: #f0f2f5">
+<div class="flex h-screen w-full bg-bg">
   {#if sidebarOpen && !isDesktop}
-    <div class="fixed inset-0 z-40 md:hidden" style="background: rgba(0,0,0,0.5)" on:click={closeSidebar} role="presentation"></div>
+    <div class="fixed inset-0 z-40 bg-black/50 md:hidden" on:click={closeSidebar} role="presentation"></div>
   {/if}
 
   <div class="fixed md:relative z-50 h-full transition-transform duration-200 ease-in-out
@@ -188,32 +188,29 @@
   </div>
 
   <div class="flex flex-col h-screen flex-1 min-w-0">
-    <header class="flex items-center gap-3 px-4 py-3 flex-shrink-0" style="background: white; border-bottom: 1px solid #e5e7eb">
-      <button class="md:hidden p-2 rounded-lg transition-colors" style="color: #6b7280" on:click={toggleSidebar}>
+    <header class="flex items-center gap-3 px-4 py-3 shrink-0 bg-surface border-b border-border">
+      <button class="md:hidden p-2 rounded-lg transition-colors text-text-muted hover:bg-surface-alt" on:click={toggleSidebar}>
         <LucideIcons name="menu" size={20} />
       </button>
       <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
           <LucideIcons name="hardhat" size={18} />
         </div>
         <div>
-          <h1 class="text-sm font-bold" style="color: #111827; margin: 0">Asesor de Maquinaria</h1>
-          <p class="text-[0.65rem]" style="color: #9ca3af; margin: 0">Renta de equipo pesado</p>
+          <h1 class="text-sm font-bold text-text m-0">Asesor de Maquinaria</h1>
+          <p class="text-[0.65rem] text-text-faint m-0">Renta de equipo pesado</p>
         </div>
       </div>
       <div class="flex items-center gap-2 ml-auto">
         {#if user?.display_name || user?.username}
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg" style="background: #f9fafb; border: 1px solid #e5e7eb">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold" style="background: #f97316; color: white">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-alt border border-border">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold bg-accent text-white">
               {(user.display_name || user.username)[0]?.toUpperCase()}
             </div>
-            <span class="text-xs font-medium hidden sm:inline" style="color: #374151">{user.display_name || user.username}</span>
+            <span class="text-xs font-medium hidden sm:inline text-text-2">{user.display_name || user.username}</span>
           </div>
         {/if}
-        <button class="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all cursor-pointer border-none"
-          style="color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb"
-          on:mouseenter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fca5a5'; e.currentTarget.style.color = '#dc2626' }}
-          on:mouseleave={e => { e.currentTarget.style.background = '#f9fafb'; e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280' }}
+        <button class="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all cursor-pointer border-none bg-surface-alt text-text-muted border border-border hover:bg-red-light hover:border-red-border hover:text-red"
           on:click={() => dispatch('logout')} title="Cerrar sesion">
           <LucideIcons name="log-out" size={14} />
           <span class="hidden sm:inline">Salir</span>
@@ -221,7 +218,7 @@
       </div>
     </header>
 
-    <div class="flex-1 overflow-y-auto scroll-smooth" style="background: #f0f2f5" bind:this={chatContainer}>
+    <div class="flex-1 overflow-y-auto scroll-smooth bg-bg" bind:this={chatContainer}>
       <div class="max-w-3xl mx-auto px-4 py-6">
         {#each messages as msg, i (i)}
           <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
@@ -230,40 +227,39 @@
           <div class="flex items-center gap-3 py-4 ml-11">
             {#if loadStatus === 'thinking'}
               <div class="relative flex items-center justify-center w-9 h-9">
-                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #f97316; opacity: 0.3"></span>
-                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: #fff7ed; border: 1px solid #fed7aa">
+                <span class="absolute inset-0 rounded-full animate-ping border-2 border-accent opacity-30"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center bg-accent-light border border-accent-border">
                   <LucideIcons name="brain" size={18} />
                 </div>
               </div>
-              <span class="text-sm font-medium" style="color: #f97316">Pensando...</span>
+              <span class="text-sm font-medium text-accent">Pensando...</span>
             {:else if loadStatus === 'searching'}
               <div class="relative flex items-center justify-center w-9 h-9">
-                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #3b82f6; opacity: 0.3"></span>
-                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: #eff6ff; border: 1px solid #bfdbfe">
+                <span class="absolute inset-0 rounded-full animate-ping border-2 border-blue opacity-30"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center bg-blue-light border border-blue-border">
                   <LucideIcons name="search" size={18} />
                 </div>
               </div>
-              <span class="text-sm font-medium" style="color: #3b82f6">Buscando...</span>
+              <span class="text-sm font-medium text-blue">Buscando...</span>
             {:else if loadStatus === 'executing'}
               <div class="relative flex items-center justify-center w-9 h-9">
-                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #f59e0b; opacity: 0.3"></span>
-                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: #fffbeb; border: 1px solid #fde68a">
+                <span class="absolute inset-0 rounded-full animate-ping border-2 border-amber opacity-30"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center bg-amber-light border border-amber-border">
                   <LucideIcons name="cog" size={18} />
                 </div>
               </div>
-              <span class="text-sm font-medium" style="color: #f59e0b">Ejecutando...</span>
+              <span class="text-sm font-medium text-amber">Ejecutando...</span>
             {:else}
               <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #d1d5db; animation-delay:0s"></span>
-                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #d1d5db; animation-delay:0.15s"></span>
-                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #d1d5db; animation-delay:0.3s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce bg-text-disabled" style="animation-delay:0s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce bg-text-disabled" style="animation-delay:0.15s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce bg-text-disabled" style="animation-delay:0.3s"></span>
               </div>
             {/if}
           </div>
         {/if}
         {#if statusText && loadStatus !== 'thinking' && loadStatus !== 'searching' && loadStatus !== 'executing'}
-          <div class="flex items-center gap-2 ml-11 px-3 py-2 text-xs rounded-lg w-fit mb-3"
-            style="background: #eff6ff; color: #3b82f6; border-left: 3px solid #3b82f6">
+          <div class="flex items-center gap-2 ml-11 px-3 py-2 text-xs rounded-lg w-fit mb-3 bg-blue-light text-blue border-l-3 border-blue">
             <LucideIcons name="zap" size={12} />
             {statusText}
           </div>
@@ -271,7 +267,7 @@
       </div>
     </div>
 
-    <div class="flex-shrink-0" style="background: white; border-top: 1px solid #e5e7eb">
+    <div class="shrink-0 bg-surface border-t border-border">
       <form class="max-w-3xl mx-auto flex gap-3 px-4 py-3 items-end" on:submit|preventDefault={send}>
         <VoiceButton on:transcript={handleVoice} disabled={loading} />
         <div class="flex-1 relative">
@@ -281,15 +277,14 @@
             placeholder="Escribe tu pregunta..."
             rows="1"
             disabled={loading}
-            class="w-full resize-none outline-none text-sm leading-relaxed max-h-[120px] min-h-[44px] transition-colors"
-            style="background: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; color: #111827; padding: 11px 16px; font-family: inherit"
-            on:focus={e => e.target.style.borderColor = '#f97316'}
-            on:blur={e => e.target.style.borderColor = '#d1d5db'}
+            class="w-full resize-none outline-none text-sm leading-relaxed max-h-[120px] min-h-[44px] transition-colors bg-surface-alt border border-text-disabled rounded-xl text-text py-[11px] px-4 font-[inherit] focus:border-accent"
           ></textarea>
         </div>
         <button type="submit" disabled={loading || !input.trim()}
-          class="w-[44px] h-[44px] rounded-full border-none cursor-pointer flex-shrink-0 flex items-center justify-center transition-all text-white shadow-sm"
-          style="background: {(loading || !input.trim()) ? '#d1d5db' : '#f97316'}; color: {(loading || !input.trim()) ? '#9ca3af' : 'white'}">
+          class="w-[44px] h-[44px] rounded-full border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm
+            {loading || !input.trim()
+              ? 'bg-text-disabled text-text-faint'
+              : 'bg-accent text-white'}">
           {#if loading}
             <span class="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full"></span>
           {:else}

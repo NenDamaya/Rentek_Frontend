@@ -79,26 +79,23 @@
   }
 </script>
 
-<aside class="h-full flex flex-col" style="width: 260px; background: white; border-right: 1px solid #e5e7eb">
-  <div class="flex items-center justify-between p-4 flex-shrink-0" style="border-bottom: 1px solid #f3f4f6">
+<aside class="h-full flex flex-col w-[260px] bg-surface border-r border-border">
+  <div class="flex items-center justify-between p-4 shrink-0 border-b border-border-light">
     <div class="flex items-center gap-2.5">
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
         <LucideIcons name="hardhat" size={18} />
       </div>
-      <span class="text-sm font-bold" style="color: #111827">Rentek</span>
+      <span class="text-sm font-bold text-text">Rentek</span>
     </div>
     {#if !isDesktop}
-      <button class="p-2 rounded-lg transition-colors" style="color: #6b7280"
+      <button class="p-2 rounded-lg transition-colors text-text-muted hover:bg-surface-alt"
         on:click={() => dispatch('close')}>
         <LucideIcons name="x" size={18} />
       </button>
     {/if}
   </div>
 
-  <button class="flex items-center gap-2.5 w-[calc(100%-24px)] mx-3 mt-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer border-none"
-    style="background: #f9fafb; color: #111827; border: 1px solid #e5e7eb"
-    on:mouseenter={e => { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.background = '#fff7ed' }}
-    on:mouseleave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.background = '#f9fafb' }}
+  <button class="flex items-center gap-2.5 w-[calc(100%-24px)] mx-3 mt-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer border-none bg-surface-alt text-text border border-border hover:border-accent hover:bg-accent-light"
     on:click={newChat}>
     <LucideIcons name="search" size={16} />
     <span>Nueva consulta</span>
@@ -107,55 +104,51 @@
   <div class="flex-1 overflow-y-auto p-2 space-y-1 mt-2">
     {#if loadingChats}
       <div class="flex flex-col items-center justify-center py-8 gap-2">
-        <span class="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" style="color: #d1d5db"></span>
-        <span class="text-xs" style="color: #9ca3af">Cargando...</span>
+        <span class="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full text-text-disabled"></span>
+        <span class="text-xs text-text-faint">Cargando...</span>
       </div>
     {:else if chats.length === 0}
-      <div class="flex flex-col items-center justify-center py-8 gap-2" style="color: #d1d5db">
+      <div class="flex flex-col items-center justify-center py-8 gap-2 text-text-disabled">
         <LucideIcons name="bot" size={28} />
         <span class="text-xs">Sin conversaciones</span>
       </div>
     {:else}
       {#each chats as chat, i (chat.id)}
-        <button class="relative group flex items-center gap-2.5 w-[calc(100%-8px)] px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer border-none"
-          style="background: {currentChatId === chat.id ? '#fff7ed' : 'transparent'}; color: {currentChatId === chat.id ? '#111827' : '#6b7280'}"
-          on:mouseenter={e => { if (currentChatId !== chat.id) e.currentTarget.style.background = '#f9fafb' }}
-          on:mouseleave={e => { if (currentChatId !== chat.id) e.currentTarget.style.background = 'transparent' }}
+        <button class="relative group flex items-center gap-2.5 w-[calc(100%-8px)] px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer border-none
+          {currentChatId === chat.id
+            ? 'bg-accent-light text-text'
+            : 'bg-transparent text-text-muted hover:bg-surface-alt'}"
           on:click={() => selectChat(chat.id)}>
 
           {#if deleteConfirmId === chat.id}
-            <div class="absolute inset-0 flex items-center justify-between px-3 rounded-xl z-10" style="background: #fef2f2; border: 1px solid #fecaca">
-              <span class="text-[0.65rem] font-medium" style="color: #dc2626">Eliminar?</span>
+            <div class="absolute inset-0 flex items-center justify-between px-3 rounded-xl z-10 bg-red-light border border-red-border">
+              <span class="text-[0.65rem] font-medium text-red">Eliminar?</span>
               <div class="flex gap-1">
-                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none"
-                  style="background: #dc2626; color: white"
+                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none bg-red text-white"
                   on:click={(e) => deleteChat(e, chat.id)}>Si</button>
-                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none"
-                  style="background: #f3f4f6; color: #6b7280"
+                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none bg-surface-hover text-text-muted"
                   on:click={(e) => { e.stopPropagation(); deleteConfirmId = null }}>No</button>
               </div>
             </div>
           {/if}
 
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style="background: {currentChatId === chat.id ? '#fed7aa' : '#f3f4f6'}">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0
+            {currentChatId === chat.id ? 'bg-accent-border' : 'bg-surface-hover'}">
             <LucideIcons name="bot" size={14} />
           </div>
 
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium truncate m-0" style="color: {currentChatId === chat.id ? '#111827' : '#374151'}">
+            <p class="text-xs font-medium truncate m-0
+              {currentChatId === chat.id ? 'text-text' : 'text-text-2'}">
               {chat.title || 'Nueva conversación'}
             </p>
-            <p class="text-[0.6rem] m-0" style="color: #9ca3af">
+            <p class="text-[0.6rem] m-0 text-text-faint">
               {getRelativeTime(chat.updated_at || chat.created_at)}
             </p>
           </div>
 
           {#if !deleteConfirmId}
-            <button class="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-none"
-              style="background: transparent; color: #dc2626"
-              on:mouseenter={e => e.currentTarget.style.background = '#fef2f2'}
-              on:mouseleave={e => e.currentTarget.style.background = 'transparent'}
+            <button class="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-none bg-transparent text-red hover:bg-red-light"
               on:click={(e) => confirmDelete(e, chat.id)} title="Eliminar chat">
               <LucideIcons name="trash-2" size={13} />
             </button>
@@ -166,9 +159,9 @@
   </div>
 
   {#if user}
-    <div class="flex items-center gap-2.5 p-3 flex-shrink-0" style="border-top: 1px solid #f3f4f6">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-        style="background: {user.avatar_url || user.picture ? 'transparent' : 'linear-gradient(135deg, #f97316, #ea580c)'}; overflow: hidden">
+    <div class="flex items-center gap-2.5 p-3 shrink-0 border-t border-border-light">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden
+        {user.avatar_url || user.picture ? '' : 'bg-gradient-to-br from-accent to-accent-hover'}">
         {#if user.avatar_url || user.picture}
           <img src={user.avatar_url || user.picture} alt="" class="w-full h-full object-cover" />
         {:else}
@@ -176,9 +169,9 @@
         {/if}
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-xs font-medium truncate m-0" style="color: #111827">{user.display_name || user.username}</p>
+        <p class="text-xs font-medium truncate m-0 text-text">{user.display_name || user.username}</p>
         {#if user.email}
-          <p class="text-[0.6rem] truncate m-0" style="color: #9ca3af">{user.email}</p>
+          <p class="text-[0.6rem] truncate m-0 text-text-faint">{user.email}</p>
         {/if}
       </div>
     </div>

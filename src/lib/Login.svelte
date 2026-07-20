@@ -31,24 +31,21 @@
   }
 </script>
 
-<div class="flex items-center justify-center min-h-screen p-5" style="background: #f0f2f5">
-  <div class="rounded-2xl p-8 sm:p-10 w-full max-w-sm shadow-xl" style="background: white; border: 1px solid #e5e7eb">
+<div class="flex items-center justify-center min-h-screen p-5 bg-bg">
+  <div class="bg-surface rounded-2xl p-8 sm:p-10 w-full max-w-sm shadow-xl border border-border">
     <div class="text-center mb-8">
-      <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white">
+      <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
         <LucideIcons name="hardhat" size={32} />
       </div>
-      <h1 class="text-xl font-bold mb-1" style="color: #111827">Rentek</h1>
-      <p class="text-sm m-0" style="color: #9ca3af">Asistente de Renta de Maquinaria Pesada</p>
+      <h1 class="text-xl font-bold mb-1 text-text">Rentek</h1>
+      <p class="text-sm m-0 text-text-faint">Asistente de Renta de Maquinaria Pesada</p>
     </div>
 
     {#if error}
-      <div class="px-3.5 py-2.5 rounded-lg text-sm mb-5" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626">{error}</div>
+      <div class="px-3.5 py-2.5 rounded-lg text-sm mb-5 bg-red-light border border-red-border text-red">{error}</div>
     {/if}
 
-    <button class="w-full py-3.5 px-4 rounded-xl font-medium cursor-pointer flex items-center justify-center gap-2.5 transition-colors border-none"
-      style="background: white; color: #374151; border: 1px solid #d1d5db"
-      on:mouseenter={e => e.currentTarget.style.background = '#f9fafb'}
-      on:mouseleave={e => e.currentTarget.style.background = 'white'}
+    <button class="w-full py-3.5 px-4 rounded-xl font-medium cursor-pointer flex items-center justify-center gap-2.5 transition-colors border-none bg-surface text-text-2 border border-text-disabled hover:bg-surface-alt"
       on:click={googleLogin}>
       <svg width="18" height="18" viewBox="0 0 24 24">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -59,6 +56,6 @@
       Continuar con Google
     </button>
 
-    <p class="text-center text-xs mt-4 m-0" style="color: #9ca3af">Serás redirigido a Google para autenticarte</p>
+    <p class="text-center text-xs mt-4 m-0 text-text-faint">Serás redirigido a Google para autenticarte</p>
   </div>
 </div>

@@ -139,15 +139,14 @@
   }
 </script>
 
-<button class="flex items-center justify-center rounded-full transition-all flex-shrink-0 cursor-pointer border-none"
-  style="width: 44px; height: 44px; {isRecording
-    ? 'background: #dc2626; color: white; box-shadow: 0 0 16px rgba(220,38,38,0.3)'
-    : disabled
-      ? 'background: #f3f4f6; color: #d1d5db'
-      : 'background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb'}"
+<button
+  class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 cursor-pointer border-none transition-all
+    {isRecording
+      ? 'bg-red text-white shadow-[0_0_16px_rgba(220,38,38,0.3)]'
+      : disabled
+        ? 'bg-surface-hover text-text-disabled'
+        : 'bg-surface-alt text-text-muted border border-border hover:border-accent hover:text-accent'}"
   on:click={toggle}
-  on:mouseenter={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.color = '#f97316' }}}
-  on:mouseleave={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280' }}}
   disabled={disabled}
   title={isRecording ? 'Detener' : speechSupported ? 'Hablar (Web Speech)' : mediaRecorderSupported ? 'Hablar (Grabar audio)' : 'Sin soporte de voz'}>
   {#if isRecording}
