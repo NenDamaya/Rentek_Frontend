@@ -4,9 +4,18 @@
   export let content = ''
   export let toolCalls = []
   export let streaming = false
+
+  let copiedId = null
+
+  function copyContent(id) {
+    navigator.clipboard.writeText(content).then(() => {
+      copiedId = id
+      setTimeout(() => copiedId = null, 1500)
+    })
+  }
 </script>
 
-<div class="flex items-start gap-3 mb-5" class:flex-row-reverse={role === 'user'}>
+<div class="flex items-start gap-3 mb-5 group" class:flex-row-reverse={role === 'user'}>
   <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm
     {role === 'user'
       ? 'bg-accent text-white'
@@ -35,11 +44,20 @@
       </div>
     {/if}
 
-    <div class="rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm
+    <div class="relative rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm
       {role === 'user'
         ? 'bg-accent text-white'
         : 'bg-surface text-text-2 border border-border'}">
       <p class="whitespace-pre-wrap break-words m-0">{content}</p>
+      <button class="absolute top-2 right-2 p-1 rounded-md transition-all opacity-0 group-hover:opacity-100 hover:bg-black/10
+        {role === 'user' ? 'text-white/70 hover:text-white' : 'text-text-faint hover:text-text'}"
+        on:click={() => copyContent('msg')} title="Copiar mensaje">
+        {#if copiedId}
+          <LucideIcons name="clipboard-check" size={13} />
+        {:else}
+          <LucideIcons name="clipboard" size={13} />
+        {/if}
+      </button>
     </div>
   </div>
 </div>
