@@ -27,8 +27,7 @@
         <img src="/rentek-black.png" alt="Rentek" class="w-6 h-6 object-contain" />
       {/if}
     </div>
-    <button class="p-1 rounded transition-colors cursor-pointer
-      {role === 'user' ? 'text-white/70' : 'text-text-faint'}"
+    <button class="p-1 rounded transition-colors cursor-pointer text-text-2 hover:text-black"
       on:click={() => copyContent('msg')} title="Copiar mensaje">
       {#if copiedId}
         <LucideIcons name="clipboard-check" size={12} />
