@@ -148,7 +148,7 @@
           </div>
 
           {#if !deleteConfirmId}
-            <button class="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-none bg-transparent text-red hover:bg-red-light"
+            <button class="p-1.5 rounded-lg md:opacity-0 md:group-hover:opacity-100 opacity-60 transition-all cursor-pointer border-none bg-transparent text-red hover:bg-red-light"
               on:click={(e) => confirmDelete(e, chat.id)} title="Eliminar chat">
               <LucideIcons name="trash-2" size={13} />
             </button>
