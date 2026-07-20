@@ -18,6 +18,7 @@
   let currentChatId = null
   let streaming = false
   let statusText = ''
+  let abortController = null
   let loadStatus = ''
   let refreshKey = 0
   let sidebarOpen = false
@@ -81,6 +82,7 @@
     input = ''
     loading = true
     streaming = true
+    abortController = new AbortController()
 
     if (!currentChatId) {
       const token = localStorage.getItem('rentek_token')
@@ -107,7 +109,7 @@
       let fullContent = ''
       let toolCallsFound = []
 
-      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId)) {
+      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId, abortController.signal)) {
         if (event.type === 'status') {
           loadStatus = event.status
           if (event.status === 'thinking') statusText = 'Pensando...'
@@ -150,6 +152,7 @@
       streaming = false
       statusText = ''
       loadStatus = ''
+      abortController = null
     }
   }
 
@@ -174,6 +177,13 @@
 
   function handleKeydown(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
+  }
+
+  function stopStream() {
+    if (abortController) {
+      abortController.abort()
+      abortController = null
+    }
   }
 </script>
 
@@ -280,17 +290,21 @@
             class="w-full resize-none outline-none text-sm leading-relaxed max-h-[120px] min-h-[44px] transition-colors bg-surface-alt border border-text-disabled rounded-xl text-text py-[11px] px-4 font-[inherit] focus:border-accent"
           ></textarea>
         </div>
-        <button type="submit" disabled={loading || !input.trim()}
-          class="w-[44px] h-[44px] rounded-full border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm
-            {loading || !input.trim()
-              ? 'bg-text-disabled text-text-faint'
-              : 'bg-accent text-white'}">
-          {#if loading}
-            <span class="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full"></span>
-          {:else}
+        {#if loading}
+          <button type="button" on:click={stopStream}
+            class="w-[44px] h-[44px] rounded-full border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm bg-red text-white hover:bg-red/90"
+            title="Detener generación">
+            <LucideIcons name="square" size={18} />
+          </button>
+        {:else}
+          <button type="submit" disabled={!input.trim()}
+            class="w-[44px] h-[44px] rounded-full border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm
+              {!input.trim()
+                ? 'bg-text-disabled text-text-faint'
+                : 'bg-accent text-white'}">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          {/if}
-        </button>
+          </button>
+        {/if}
       </form>
     </div>
   </div>

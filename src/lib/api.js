@@ -22,7 +22,7 @@ export async function chatCompletions(messages, tools, conversationId = null) {
   return res.json()
 }
 
-export async function* chatCompletionsStream(messages, tools, conversationId = null, chatId = null) {
+export async function* chatCompletionsStream(messages, tools, conversationId = null, chatId = null, signal = null) {
   const body = { messages, tools, stream: true }
   if (conversationId) body.conversation_id = conversationId
   if (chatId) body.chat_id = chatId
@@ -31,6 +31,7 @@ export async function* chatCompletionsStream(messages, tools, conversationId = n
     method: 'POST',
     headers: HEADERS,
     body: JSON.stringify(body),
+    signal,
   })
 
   if (!res.ok) {
