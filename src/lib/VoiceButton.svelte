@@ -9,15 +9,18 @@
   let isRecording = false
   let speechSupported = false
   let mediaRecorderSupported = false
+  let secureContext = false
   let recognition = null
   let audioChunks = []
   let mediaStream = null
   let mediaRecorder = null
+  let errorMsg = ''
 
   onMount(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     speechSupported = !!SpeechRecognition
     mediaRecorderSupported = !!window.MediaRecorder
+    secureContext = window.isSecureContext
   })
 
   onDestroy(() => {
@@ -25,16 +28,24 @@
     if (mediaStream) mediaStream.getTracks().forEach(t => t.stop())
   })
 
+  function showError(msg) {
+    errorMsg = msg
+    setTimeout(() => { errorMsg = '' }, 4000)
+  }
+
   async function toggle() {
     if (disabled) return
     if (isRecording) { stop(); return }
+    errorMsg = ''
 
     if (speechSupported) {
       startWebSpeech()
-    } else if (mediaRecorderSupported) {
+    } else if (mediaRecorderSupported && secureContext) {
       await startMediaRecorder()
+    } else if (mediaRecorderSupported && !secureContext) {
+      showError('Micrófono requiere HTTPS')
     } else {
-      dispatch('transcript', 'No hay soporte de voz disponible')
+      showError('Voz no soportada en este navegador')
     }
   }
 
@@ -54,14 +65,23 @@
 
     recognition.onerror = (event) => {
       isRecording = false
-      if (event.error !== 'no-speech' && event.error !== 'aborted') {
-        console.error('Speech error:', event.error)
+      if (event.error === 'not-allowed') {
+        showError('Permiso de micrófono denegado')
+      } else if (event.error === 'no-speech') {
+        showError('No se detectó voz')
+      } else if (event.error !== 'aborted') {
+        showError(`Error de voz: ${event.error}`)
       }
     }
 
     recognition.onend = () => { isRecording = false }
 
-    try { recognition.start() } catch { isRecording = false }
+    try {
+      recognition.start()
+    } catch (err) {
+      isRecording = false
+      showError('No se pudo iniciar el micrófono')
+    }
   }
 
   async function startMediaRecorder() {
@@ -95,7 +115,13 @@
       }, 15000)
     } catch (err) {
       isRecording = false
-      console.error('MediaRecorder error:', err)
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        showError('Permiso de micrófono denegado')
+      } else if (err.name === 'NotFoundError') {
+        showError('No se encontró micrófono')
+      } else {
+        showError('Error al acceder al micrófono')
+      }
     }
   }
 
@@ -125,10 +151,10 @@
         const data = await res.json()
         if (data.text) dispatch('transcript', data.text)
       } else {
-        console.error('Transcription failed:', res.status)
+        showError('Error al transcribir audio')
       }
     } catch (err) {
-      console.error('Transcription error:', err)
+      showError('Error de conexión al transcribir')
     }
   }
 
@@ -139,19 +165,27 @@
   }
 </script>
 
-<button
-  class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 cursor-pointer border-none transition-all
-    {isRecording
-      ? 'bg-red text-white shadow-[0_0_16px_rgba(220,38,38,0.3)]'
-      : disabled
-        ? 'bg-surface-hover text-text-disabled'
-        : 'bg-surface-alt text-text-muted border border-border hover:border-accent hover:text-accent'}"
-  on:click={toggle}
-  disabled={disabled}
-  title={isRecording ? 'Detener' : speechSupported ? 'Hablar (Web Speech)' : mediaRecorderSupported ? 'Hablar (Grabar audio)' : 'Sin soporte de voz'}>
-  {#if isRecording}
-    <LucideIcons name="square" size={18} />
-  {:else}
-    <LucideIcons name="mic" size={18} />
+<div class="relative">
+  <button
+    class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 cursor-pointer border-none transition-all
+      {isRecording
+        ? 'bg-red text-white shadow-[0_0_16px_rgba(220,38,38,0.3)]'
+        : disabled
+          ? 'bg-surface-hover text-text-disabled'
+          : 'bg-surface-alt text-text-muted border border-border hover:border-accent hover:text-accent'}"
+    on:click={toggle}
+    disabled={disabled}
+    title={isRecording ? 'Detener' : speechSupported ? 'Hablar (Web Speech)' : mediaRecorderSupported ? 'Hablar (Grabar audio)' : 'Sin soporte de voz'}>
+    {#if isRecording}
+      <LucideIcons name="square" size={18} />
+    {:else}
+      <LucideIcons name="mic" size={18} />
+    {/if}
+  </button>
+
+  {#if errorMsg}
+    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap bg-red text-white shadow-lg z-50">
+      {errorMsg}
+    </div>
   {/if}
-</button>
+</div>
