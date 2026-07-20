@@ -1,8 +1,11 @@
 <script>
-  import { onMount } from 'svelte'
+  import { onMount, createEventDispatcher } from 'svelte'
   import Message from './Message.svelte'
   import VoiceButton from './VoiceButton.svelte'
   import { chatCompletions, chatCompletionsStream, API_BASE } from './api.js'
+
+  export let user = null
+  const dispatch = createEventDispatcher()
 
   let messages = []
   let input = ''
@@ -12,6 +15,7 @@
   let conversationId = null
   let streaming = false
   let statusText = ''
+  let loadStatus = ''
 
   onMount(async () => {
     try {
@@ -45,8 +49,14 @@
       let currentConversationId = conversationId
 
       for await (const event of chatCompletionsStream(messages, tools, currentConversationId)) {
-        if (event.type === 'ttft') {
+        if (event.type === 'status') {
+          loadStatus = event.status
+          if (event.status === 'thinking') statusText = 'Pensando...'
+          else if (event.status === 'searching') statusText = 'Buscando en base de conocimiento...'
+          else if (event.status === 'executing') statusText = 'Ejecutando herramienta...'
+        } else if (event.type === 'ttft') {
           statusText = `Primer token en ${event.ms}ms`
+          loadStatus = 'streaming'
         } else if (event.type === 'token') {
           fullContent += event.content
           const last = messages[messages.length - 1]
@@ -99,6 +109,7 @@
       loading = false
       streaming = false
       statusText = ''
+      loadStatus = ''
     }
   }
 
@@ -126,11 +137,20 @@
 <div class="chat">
   <header class="header">
     <h1>🏗️ Asesor de Maquinaria</h1>
-    <div class="header-badges">
-      <span class="badge">Function Calling</span>
-      <span class="badge badge-green">Streaming</span>
-      {#if conversationId}
-        <span class="badge badge-blue">Sesión activa</span>
+    <div class="header-right">
+      <div class="header-badges">
+        <span class="badge">Function Calling</span>
+        <span class="badge badge-green">Streaming</span>
+        {#if conversationId}
+          <span class="badge badge-blue">Sesión activa</span>
+        {/if}
+      </div>
+      {#if user}
+        <div class="user-info">
+          <span class="user-avatar">👤</span>
+          <span class="user-name">{user.display_name || user.username}</span>
+          <button class="logout-btn" on:click={() => dispatch('logout')} title="Cerrar sesión">✕</button>
+        </div>
       {/if}
     </div>
   </header>
@@ -141,14 +161,37 @@
     {/each}
     {#if loading && !streaming}
       <div class="typing">
-        <span class="dot" />
-        <span class="dot" />
-        <span class="dot" />
+        {#if loadStatus === 'thinking'}
+          <span class="status-indicator thinking">
+            <span class="pulse-ring" />
+            <span class="status-emoji">🧠</span>
+          </span>
+        {:else if loadStatus === 'searching'}
+          <span class="status-indicator searching">
+            <span class="pulse-ring search-ring" />
+            <span class="status-emoji">🔍</span>
+          </span>
+        {:else if loadStatus === 'executing'}
+          <span class="status-indicator executing">
+            <span class="pulse-ring exec-ring" />
+            <span class="status-emoji">⚙️</span>
+          </span>
+        {:else}
+          <span class="dot" /><span class="dot" /><span class="dot" />
+        {/if}
       </div>
     {/if}
     {#if statusText}
-      <div class="status-bar">
-        <span class="status-icon">⚡</span>
+      <div class="status-bar" class:thinking={loadStatus === 'thinking'} class:searching={loadStatus === 'searching'} class:executing={loadStatus === 'executing'}>
+        {#if loadStatus === 'thinking'}
+          <span class="status-icon">🧠</span>
+        {:else if loadStatus === 'searching'}
+          <span class="status-icon">🔍</span>
+        {:else if loadStatus === 'executing'}
+          <span class="status-icon">⚙️</span>
+        {:else}
+          <span class="status-icon">⚡</span>
+        {/if}
         {statusText}
       </div>
     {/if}
@@ -191,9 +234,43 @@
     font-size: 1.1em;
     font-weight: 600;
   }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
   .header-badges {
     display: flex;
     gap: 6px;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--surface-2, #2a2a2a);
+    border-radius: 999px;
+    font-size: 0.8em;
+  }
+  .user-avatar {
+    font-size: 1em;
+  }
+  .user-name {
+    color: var(--text, #fff);
+  }
+  .logout-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted, #888);
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+  .logout-btn:hover {
+    background: #ef444420;
+    color: #ef4444;
   }
   .badge {
     background: var(--primary);
@@ -249,9 +326,54 @@
     background: var(--surface-2);
     border-radius: 8px;
     width: fit-content;
+    transition: all 0.3s ease;
+  }
+  .status-bar.thinking {
+    border-left: 3px solid #a855f7;
+  }
+  .status-bar.searching {
+    border-left: 3px solid #3b82f6;
+  }
+  .status-bar.executing {
+    border-left: 3px solid #f59e0b;
   }
   .status-icon {
     font-size: 1em;
+  }
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 32px;
+    height: 32px;
+  }
+  .status-emoji {
+    font-size: 1.2em;
+    z-index: 1;
+    animation: float 2s ease-in-out infinite;
+  }
+  .pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #a855f7;
+    animation: pulse-ring 1.5s ease-out infinite;
+  }
+  .search-ring {
+    border-color: #3b82f6;
+  }
+  .exec-ring {
+    border-color: #f59e0b;
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
   }
   .input-bar {
     display: flex;
