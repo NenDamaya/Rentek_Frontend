@@ -31,19 +31,25 @@
   }
 </script>
 
-<div class="flex items-center justify-center min-h-screen bg-bg p-5">
-  <div class="bg-surface border border-border rounded-2xl p-8 sm:p-10 w-full max-w-sm shadow-xl">
+<div class="flex items-center justify-center min-h-screen p-5" style="background: #f0f2f5">
+  <div class="rounded-2xl p-8 sm:p-10 w-full max-w-sm shadow-xl" style="background: white; border: 1px solid #e5e7eb">
     <div class="text-center mb-8">
-      <span class="block mb-2 text-primary"><LucideIcons name="hardhat" size={40} /></span>
-      <h1 class="text-xl font-bold mb-1">Rentek</h1>
-      <p class="text-text-muted text-sm m-0">Asistente de Renta de Maquinaria Pesada</p>
+      <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white">
+        <LucideIcons name="hardhat" size={32} />
+      </div>
+      <h1 class="text-xl font-bold mb-1" style="color: #111827">Rentek</h1>
+      <p class="text-sm m-0" style="color: #9ca3af">Asistente de Renta de Maquinaria Pesada</p>
     </div>
 
     {#if error}
-      <div class="bg-error/10 border border-error text-error px-3.5 py-2.5 rounded-lg text-sm mb-5">{error}</div>
+      <div class="px-3.5 py-2.5 rounded-lg text-sm mb-5" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626">{error}</div>
     {/if}
 
-    <button class="w-full py-3.5 px-4 border border-border rounded-xl bg-surface-2 text-text font-medium cursor-pointer flex items-center justify-center gap-2.5 transition-colors hover:bg-surface-2/80" on:click={googleLogin}>
+    <button class="w-full py-3.5 px-4 rounded-xl font-medium cursor-pointer flex items-center justify-center gap-2.5 transition-colors border-none"
+      style="background: white; color: #374151; border: 1px solid #d1d5db"
+      on:mouseenter={e => e.currentTarget.style.background = '#f9fafb'}
+      on:mouseleave={e => e.currentTarget.style.background = 'white'}
+      on:click={googleLogin}>
       <svg width="18" height="18" viewBox="0 0 24 24">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -53,6 +59,6 @@
       Continuar con Google
     </button>
 
-    <p class="text-center text-xs text-text-muted mt-4">Serás redirigido a Google para autenticarte</p>
+    <p class="text-center text-xs mt-4 m-0" style="color: #9ca3af">Serás redirigido a Google para autenticarte</p>
   </div>
 </div>

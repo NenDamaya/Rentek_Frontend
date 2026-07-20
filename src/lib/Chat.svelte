@@ -177,9 +177,9 @@
   }
 </script>
 
-<div class="flex h-screen w-full" style="background: #0c1222">
+<div class="flex h-screen w-full" style="background: #f0f2f5">
   {#if sidebarOpen && !isDesktop}
-    <div class="fixed inset-0 z-40 md:hidden" style="background: rgba(0,0,0,0.6)" on:click={closeSidebar} role="presentation"></div>
+    <div class="fixed inset-0 z-40 md:hidden" style="background: rgba(0,0,0,0.5)" on:click={closeSidebar} role="presentation"></div>
   {/if}
 
   <div class="fixed md:relative z-50 h-full transition-transform duration-200 ease-in-out
@@ -188,36 +188,32 @@
   </div>
 
   <div class="flex flex-col h-screen flex-1 min-w-0">
-    <header class="flex items-center gap-3 px-4 py-3 flex-shrink-0" style="background: #111a2e; border-bottom: 1px solid #1e2d4a">
-      <button class="md:hidden p-2 rounded-lg transition-colors" style="color: #94a3b8" on:click={toggleSidebar}
-        on:mouseenter={e => e.target.style.background = '#1e2d4a'} on:mouseleave={e => e.target.style.background = 'transparent'}>
+    <header class="flex items-center gap-3 px-4 py-3 flex-shrink-0" style="background: white; border-bottom: 1px solid #e5e7eb">
+      <button class="md:hidden p-2 rounded-lg transition-colors" style="color: #6b7280" on:click={toggleSidebar}>
         <LucideIcons name="menu" size={20} />
       </button>
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #3b82f6, #2563eb)">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white">
           <LucideIcons name="hardhat" size={18} />
         </div>
         <div>
-          <h1 class="text-sm font-semibold" style="color: #e2e8f0">Asesor de Maquinaria</h1>
-          <p class="text-[0.6rem] hidden sm:block" style="color: #64748b">Renta de equipo pesado</p>
+          <h1 class="text-sm font-bold" style="color: #111827; margin: 0">Asesor de Maquinaria</h1>
+          <p class="text-[0.65rem]" style="color: #9ca3af; margin: 0">Renta de equipo pesado</p>
         </div>
       </div>
       <div class="flex items-center gap-2 ml-auto">
-        <div class="hidden md:flex items-center gap-1.5">
-          <span class="text-[0.6rem] px-2 py-0.5 rounded-full font-medium" style="background: rgba(59,130,246,0.15); color: #60a5fa">AI</span>
-          <span class="text-[0.6rem] px-2 py-0.5 rounded-full font-medium" style="background: rgba(34,197,94,0.15); color: #4ade80">Live</span>
-        </div>
         {#if user?.display_name || user?.username}
-          <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg" style="background: #1a2540">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold" style="background: #3b82f6; color: white">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg" style="background: #f9fafb; border: 1px solid #e5e7eb">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold" style="background: #f97316; color: white">
               {(user.display_name || user.username)[0]?.toUpperCase()}
             </div>
-            <span class="text-xs font-medium" style="color: #cbd5e1">{user.display_name || user.username}</span>
+            <span class="text-xs font-medium hidden sm:inline" style="color: #374151">{user.display_name || user.username}</span>
           </div>
         {/if}
-        <button class="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all" style="color: #94a3b8; background: #1a2540"
-          on:mouseenter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#f87171' }}
-          on:mouseleave={e => { e.currentTarget.style.background = '#1a2540'; e.currentTarget.style.color = '#94a3b8' }}
+        <button class="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all cursor-pointer border-none"
+          style="color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb"
+          on:mouseenter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fca5a5'; e.currentTarget.style.color = '#dc2626' }}
+          on:mouseleave={e => { e.currentTarget.style.background = '#f9fafb'; e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280' }}
           on:click={() => dispatch('logout')} title="Cerrar sesion">
           <LucideIcons name="log-out" size={14} />
           <span class="hidden sm:inline">Salir</span>
@@ -225,7 +221,7 @@
       </div>
     </header>
 
-    <div class="flex-1 overflow-y-auto scroll-smooth" style="background: #0c1222" bind:this={chatContainer}>
+    <div class="flex-1 overflow-y-auto scroll-smooth" style="background: #f0f2f5" bind:this={chatContainer}>
       <div class="max-w-3xl mx-auto px-4 py-6">
         {#each messages as msg, i (i)}
           <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
@@ -234,40 +230,40 @@
           <div class="flex items-center gap-3 py-4 ml-11">
             {#if loadStatus === 'thinking'}
               <div class="relative flex items-center justify-center w-9 h-9">
-                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #a855f7; opacity: 0.4"></span>
-                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: rgba(168,85,247,0.15)">
+                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #f97316; opacity: 0.3"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: #fff7ed; border: 1px solid #fed7aa">
                   <LucideIcons name="brain" size={18} />
                 </div>
               </div>
-              <span class="text-sm" style="color: #a855f7">Pensando...</span>
+              <span class="text-sm font-medium" style="color: #f97316">Pensando...</span>
             {:else if loadStatus === 'searching'}
               <div class="relative flex items-center justify-center w-9 h-9">
-                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #3b82f6; opacity: 0.4"></span>
-                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: rgba(59,130,246,0.15)">
+                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #3b82f6; opacity: 0.3"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: #eff6ff; border: 1px solid #bfdbfe">
                   <LucideIcons name="search" size={18} />
                 </div>
               </div>
-              <span class="text-sm" style="color: #3b82f6">Buscando...</span>
+              <span class="text-sm font-medium" style="color: #3b82f6">Buscando...</span>
             {:else if loadStatus === 'executing'}
               <div class="relative flex items-center justify-center w-9 h-9">
-                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #f59e0b; opacity: 0.4"></span>
-                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: rgba(245,158,11,0.15)">
+                <span class="absolute inset-0 rounded-full animate-ping" style="border: 2px solid #f59e0b; opacity: 0.3"></span>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background: #fffbeb; border: 1px solid #fde68a">
                   <LucideIcons name="cog" size={18} />
                 </div>
               </div>
-              <span class="text-sm" style="color: #f59e0b">Ejecutando...</span>
+              <span class="text-sm font-medium" style="color: #f59e0b">Ejecutando...</span>
             {:else}
               <div class="flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #64748b; animation-delay:0s"></span>
-                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #64748b; animation-delay:0.15s"></span>
-                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #64748b; animation-delay:0.3s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #d1d5db; animation-delay:0s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #d1d5db; animation-delay:0.15s"></span>
+                <span class="w-2 h-2 rounded-full animate-bounce" style="background: #d1d5db; animation-delay:0.3s"></span>
               </div>
             {/if}
           </div>
         {/if}
         {#if statusText && loadStatus !== 'thinking' && loadStatus !== 'searching' && loadStatus !== 'executing'}
           <div class="flex items-center gap-2 ml-11 px-3 py-2 text-xs rounded-lg w-fit mb-3"
-            style="background: #1a2540; color: #94a3b8; border-left: 3px solid #3b82f6">
+            style="background: #eff6ff; color: #3b82f6; border-left: 3px solid #3b82f6">
             <LucideIcons name="zap" size={12} />
             {statusText}
           </div>
@@ -275,7 +271,7 @@
       </div>
     </div>
 
-    <div class="flex-shrink-0" style="background: #111a2e; border-top: 1px solid #1e2d4a">
+    <div class="flex-shrink-0" style="background: white; border-top: 1px solid #e5e7eb">
       <form class="max-w-3xl mx-auto flex gap-3 px-4 py-3 items-end" on:submit|preventDefault={send}>
         <VoiceButton on:transcript={handleVoice} disabled={loading} />
         <div class="flex-1 relative">
@@ -286,14 +282,14 @@
             rows="1"
             disabled={loading}
             class="w-full resize-none outline-none text-sm leading-relaxed max-h-[120px] min-h-[44px] transition-colors"
-            style="background: #1a2540; border: 1px solid #2a3a5c; border-radius: 12px; color: #e2e8f0; padding: 11px 16px; font-family: inherit"
-            on:focus={e => e.target.style.borderColor = '#3b82f6'}
-            on:blur={e => e.target.style.borderColor = '#2a3a5c'}
+            style="background: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; color: #111827; padding: 11px 16px; font-family: inherit"
+            on:focus={e => e.target.style.borderColor = '#f97316'}
+            on:blur={e => e.target.style.borderColor = '#d1d5db'}
           ></textarea>
         </div>
         <button type="submit" disabled={loading || !input.trim()}
-          class="w-[44px] h-[44px] rounded-full border-none cursor-pointer flex-shrink-0 flex items-center justify-center transition-all text-white"
-          style="background: {(loading || !input.trim()) ? '#1e2d4a' : '#3b82f6'}; color: {(loading || !input.trim()) ? '#475569' : 'white'}">
+          class="w-[44px] h-[44px] rounded-full border-none cursor-pointer flex-shrink-0 flex items-center justify-center transition-all text-white shadow-sm"
+          style="background: {(loading || !input.trim()) ? '#d1d5db' : '#f97316'}; color: {(loading || !input.trim()) ? '#9ca3af' : 'white'}">
           {#if loading}
             <span class="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full"></span>
           {:else}

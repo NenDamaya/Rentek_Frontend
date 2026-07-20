@@ -141,13 +141,13 @@
 
 <button class="flex items-center justify-center rounded-full transition-all flex-shrink-0 cursor-pointer border-none"
   style="width: 44px; height: 44px; {isRecording
-    ? 'background: #ef4444; color: white; box-shadow: 0 0 20px rgba(239,68,68,0.4)'
+    ? 'background: #dc2626; color: white; box-shadow: 0 0 16px rgba(220,38,38,0.3)'
     : disabled
-      ? 'background: #1e2d4a; color: #475569'
-      : 'background: #1a2540; color: #94a3b8; border: 1px solid #2a3a5c'}"
+      ? 'background: #f3f4f6; color: #d1d5db'
+      : 'background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb'}"
   on:click={toggle}
-  on:mouseenter={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.color = '#60a5fa' }}}
-  on:mouseleave={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#2a3a5c'; e.currentTarget.style.color = '#94a3b8' }}}
+  on:mouseenter={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.color = '#f97316' }}}
+  on:mouseleave={e => { if (!isRecording && !disabled) { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280' }}}
   disabled={disabled}
   title={isRecording ? 'Detener' : speechSupported ? 'Hablar (Web Speech)' : mediaRecorderSupported ? 'Hablar (Grabar audio)' : 'Sin soporte de voz'}>
   {#if isRecording}

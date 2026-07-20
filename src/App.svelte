@@ -30,8 +30,8 @@
 </script>
 
 {#if !checked}
-  <div class="flex flex-col items-center justify-center h-screen gap-3 text-text-muted">
-    <span class="text-primary animate-pulse"><LucideIcons name="hardhat" size={48} /></span>
+  <div class="flex flex-col items-center justify-center h-screen gap-3" style="background: #f0f2f5; color: #9ca3af">
+    <span class="animate-pulse" style="color: #f97316"><LucideIcons name="hardhat" size={48} /></span>
     <p>Cargando...</p>
   </div>
 {:else if user}
