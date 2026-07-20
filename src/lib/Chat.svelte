@@ -60,7 +60,7 @@
       const data = await res.json()
       conversationId = data.conversation_id || null
       if (data.messages && data.messages.length > 0) {
-        messages = data.messages
+        messages = data.messages.filter(m => m.role === 'user' || m.role === 'assistant')
       } else {
         messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
       }
