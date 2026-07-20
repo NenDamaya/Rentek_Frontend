@@ -31,7 +31,7 @@
 
 {#if !checked}
   <div class="flex flex-col items-center justify-center h-screen gap-3 bg-bg text-text-faint">
-    <span class="animate-pulse text-accent"><img src="/rentek-white.png" alt="Rentek" class="w-12 h-12 object-contain" /></span>
+    <span class="animate-pulse text-accent"><img src="/rentek-white.png" alt="Rentek" class="w-[72px] h-[72px] object-contain" /></span>
     <p>Cargando...</p>
   </div>
 {:else if user}

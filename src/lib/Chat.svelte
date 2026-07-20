@@ -210,7 +210,7 @@
       </button>
       <div class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
-          <img src="/rentek-white.png" alt="Rentek" class="w-[18px] h-[18px] object-contain" />
+          <img src="/rentek-white.png" alt="Rentek" class="w-7 h-7 object-contain" />
         </div>
         <div>
           <h1 class="text-sm font-bold text-text m-0">Asesor de Maquinaria</h1>

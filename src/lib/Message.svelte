@@ -14,7 +14,7 @@
     {#if role === 'user'}
       <LucideIcons name="user" size={16} />
     {:else}
-      <img src="/rentek-black.png" alt="Rentek" class="w-4 h-4 object-contain" />
+      <img src="/rentek-black.png" alt="Rentek" class="w-6 h-6 object-contain" />
     {/if}
   </div>
 
