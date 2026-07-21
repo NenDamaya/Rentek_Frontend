@@ -1,5 +1,6 @@
 <script>
   import LucideIcons from './LucideIcons.svelte'
+  import MarkdownRenderer from './MarkdownRenderer.svelte'
   export let role = 'assistant'
   export let content = ''
   export let toolCalls = []
@@ -58,7 +59,7 @@
       {role === 'user'
         ? 'bg-accent text-white'
         : 'bg-surface text-text-2 border border-border'}">
-      <p class="whitespace-pre-wrap break-words m-0">{content}</p>
+      <MarkdownRenderer {content} />
     </div>
   </div>
 </div>

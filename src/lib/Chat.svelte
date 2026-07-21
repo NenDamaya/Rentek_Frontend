@@ -22,6 +22,9 @@
   let loadStatus = ''
   let refreshKey = 0
   let sidebarOpen = false
+  let userScrolledUp = false
+
+  $: showScrollBtn = !streaming && userScrolledUp
 
   $: isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768
 
@@ -110,7 +113,8 @@
       let toolCallsFound = []
 
       const userName = user?.display_name || user?.username || null
-      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId, abortController.signal, userName)) {
+      const userEmail = user?.email || null
+      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId, abortController.signal, userName, userEmail)) {
         if (event.type === 'status') {
           loadStatus = event.status
           if (event.status === 'thinking') statusText = 'Pensando...'
@@ -179,7 +183,24 @@
   }
 
   function scrollDown() {
-    setTimeout(() => { if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight }, 50)
+    if (!chatContainer) return
+    const threshold = 150
+    const atBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < threshold
+    if (atBottom) {
+      chatContainer.scrollTop = chatContainer.scrollHeight
+    }
+  }
+
+  function handleScroll() {
+    if (!chatContainer) return
+    const threshold = 150
+    userScrolledUp = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight > threshold
+  }
+
+  function scrollToBottom() {
+    if (!chatContainer) return
+    chatContainer.scrollTop = chatContainer.scrollHeight
+    userScrolledUp = false
   }
 
   function handleKeydown(e) {
@@ -235,7 +256,7 @@
       </div>
     </header>
 
-    <div class="flex-1 overflow-y-auto scroll-smooth bg-bg" bind:this={chatContainer}>
+    <div class="flex-1 overflow-y-auto scroll-smooth bg-bg" bind:this={chatContainer} on:scroll={handleScroll}>
       <div class="max-w-3xl mx-auto px-4 py-6">
         {#each messages as msg, i (i)}
           <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
@@ -283,6 +304,14 @@
         {/if}
       </div>
     </div>
+
+    {#if showScrollBtn}
+      <button on:click={scrollToBottom}
+        class="fixed bottom-28 right-7 w-10 h-10 rounded-full border-none shadow-lg cursor-pointer flex items-center justify-center z-50 bg-accent text-white hover:bg-accent-hover transition-all"
+        title="Ir al final">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    {/if}
 
     <div class="shrink-0 bg-surface border-t border-border">
       <form class="max-w-3xl mx-auto flex gap-3 px-4 py-3 items-end" on:submit|preventDefault={send}>
