@@ -6,15 +6,18 @@ const HEADERS = {
   'User-Agent': 'rentek-app/1.0',
 }
 
-export async function chatCompletions(messages, tools, conversationId = null, userName = null, userEmail = null) {
+export async function chatCompletions(messages, tools, conversationId = null, userName = null, userEmail = null, token = null) {
   const body = { messages, tools }
   if (conversationId) body.conversation_id = conversationId
   if (userName) body.user_name = userName
   if (userEmail) body.user_email = userEmail
 
+  const headers = { ...HEADERS }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
   const res = await fetch(`${API_BASE}/v1/chat/completions`, {
     method: 'POST',
-    headers: HEADERS,
+    headers,
     body: JSON.stringify(body),
   })
   if (!res.ok) {
@@ -24,16 +27,19 @@ export async function chatCompletions(messages, tools, conversationId = null, us
   return res.json()
 }
 
-export async function* chatCompletionsStream(messages, tools, conversationId = null, chatId = null, signal = null, userName = null, userEmail = null) {
+export async function* chatCompletionsStream(messages, tools, conversationId = null, chatId = null, signal = null, userName = null, userEmail = null, token = null) {
   const body = { messages, tools, stream: true }
   if (conversationId) body.conversation_id = conversationId
   if (chatId) body.chat_id = chatId
   if (userName) body.user_name = userName
   if (userEmail) body.user_email = userEmail
 
+  const headers = { ...HEADERS }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
   const res = await fetch(`${API_BASE}/v1/chat/completions/stream`, {
     method: 'POST',
-    headers: HEADERS,
+    headers,
     body: JSON.stringify(body),
     signal,
   })

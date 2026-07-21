@@ -13,6 +13,7 @@
   let input = ''
   let loading = false
   let chatContainer
+  let textareaEl
   let tools = []
   let conversationId = null
   let currentChatId = null
@@ -23,6 +24,8 @@
   let refreshKey = 0
   let sidebarOpen = false
   let userScrolledUp = false
+  let chatStatus = null
+  let userBlocked = false
 
   $: showScrollBtn = !streaming && userScrolledUp
 
@@ -58,6 +61,7 @@
     if (chatId === currentChatId) return
     currentChatId = chatId
     if (!chatId) {
+      chatStatus = null
       conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
       return
@@ -68,11 +72,13 @@
         headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
       })
       const data = await res.json()
+      chatStatus = data.chat_status || null
       conversationId = data.conversation_id || null
       messages = data.messages?.length > 0
         ? data.messages.filter(m => m.role === 'user' || m.role === 'assistant')
         : [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
     } catch {
+      chatStatus = null
       conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
     }
@@ -95,6 +101,12 @@
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
           })
+          if (res.status === 403) {
+            userBlocked = true
+            loading = false
+            streaming = false
+            return
+          }
           const chat = await res.json()
           currentChatId = chat.id
           refreshKey++
@@ -112,9 +124,10 @@
       let fullContent = ''
       let toolCallsFound = []
 
+      const token = localStorage.getItem('rentek_token')
       const userName = user?.display_name || user?.username || null
       const userEmail = user?.email || null
-      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId, abortController.signal, userName, userEmail)) {
+      for await (const event of chatCompletionsStream(messages, tools, conversationId, currentChatId, abortController.signal, userName, userEmail, token)) {
         if (event.type === 'status') {
           loadStatus = event.status
           if (event.status === 'thinking') statusText = 'Pensando...'
@@ -142,6 +155,10 @@
         }
       }
 
+      if (fullContent === 'Por seguridad, este chat fue cerrado.') {
+        chatStatus = 'closed_security'
+      }
+
       const lastMsg = messages[messages.length - 1]
       if (lastMsg?.role === 'assistant') {
         messages = [...messages.slice(0, -1), { role: 'assistant', content: fullContent, streaming: false }]
@@ -158,6 +175,7 @@
       statusText = ''
       loadStatus = ''
       abortController = null
+      tick().then(() => textareaEl?.focus())
     }
   }
 
@@ -318,11 +336,31 @@
       </button>
     {/if}
 
+    {#if userBlocked}
+      <div class="shrink-0 bg-surface border-t border-border">
+        <div class="max-w-3xl mx-auto px-4 py-4 text-center">
+          <div class="flex items-center justify-center gap-2 text-red font-medium text-sm">
+            <LucideIcons name="ban" size={16} />
+            <span>Tu cuenta ha sido bloqueada por medidas de seguridad.</span>
+          </div>
+        </div>
+      </div>
+    {:else if chatStatus === 'closed_security'}
+      <div class="shrink-0 bg-surface border-t border-border">
+        <div class="max-w-3xl mx-auto px-4 py-4 text-center">
+          <div class="flex items-center justify-center gap-2 text-amber font-medium text-sm">
+            <LucideIcons name="lock" size={16} />
+            <span>Por seguridad, este chat fue cerrado.</span>
+          </div>
+        </div>
+      </div>
+    {:else}
     <div class="shrink-0 bg-surface border-t border-border">
       <form class="max-w-3xl mx-auto flex gap-3 px-4 py-3 items-end" on:submit|preventDefault={send}>
         <VoiceButton on:transcript={handleVoice} on:interim={handleVoiceInterim} disabled={loading} />
         <div class="flex-1 relative">
           <textarea
+            bind:this={textareaEl}
             bind:value={input}
             on:keydown={handleKeydown}
             placeholder="Escribe tu pregunta..."
@@ -348,5 +386,6 @@
         {/if}
       </form>
     </div>
+    {/if}
   </div>
 </div>
