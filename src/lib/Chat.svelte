@@ -76,7 +76,7 @@
       conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
     }
-    scrollDown()
+    scrollDown(true)
   }
 
   async function send() {
@@ -106,7 +106,7 @@
     }
 
     messages = [...messages, { role: 'user', content: text }]
-    scrollDown()
+    scrollDown(true)
 
     try {
       let fullContent = ''
@@ -148,10 +148,10 @@
       } else {
         messages = [...messages, { role: 'assistant', content: fullContent, streaming: false }]
       }
-      scrollDown()
+      scrollDown(true)
     } catch (err) {
       messages = [...messages, { role: 'assistant', content: `Error: ${err.message}` }]
-      scrollDown()
+      scrollDown(true)
     } finally {
       loading = false
       streaming = false
@@ -182,8 +182,12 @@
     }
   }
 
-  function scrollDown() {
+  function scrollDown(force = false) {
     if (!chatContainer) return
+    if (force) {
+      chatContainer.scrollTop = chatContainer.scrollHeight
+      return
+    }
     const threshold = 150
     const atBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < threshold
     if (atBottom) {
