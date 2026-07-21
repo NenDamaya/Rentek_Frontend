@@ -1,5 +1,5 @@
 <script>
-  import { onMount, createEventDispatcher } from 'svelte'
+  import { onMount, createEventDispatcher, tick } from 'svelte'
   import Message from './Message.svelte'
   import VoiceButton from './VoiceButton.svelte'
   import Sidebar from './Sidebar.svelte'
@@ -182,8 +182,9 @@
     }
   }
 
-  function scrollDown(force = false) {
+  async function scrollDown(force = false) {
     if (!chatContainer) return
+    await tick()
     if (force) {
       chatContainer.scrollTop = chatContainer.scrollHeight
       return
