@@ -78,6 +78,8 @@
     const chatId = e.detail
     if (chatId === currentChatId) return
     currentChatId = chatId
+    contextTokens = 0
+    wasCompacted = false
     if (!chatId) {
       chatStatus = null
       conversationId = null
