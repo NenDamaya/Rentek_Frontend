@@ -1,4 +1,5 @@
 <script>
+  import { createEventDispatcher } from 'svelte'
   import LucideIcons from './LucideIcons.svelte'
   import MarkdownRenderer from './MarkdownRenderer.svelte'
   export let role = 'assistant'
@@ -7,6 +8,7 @@
   export let streaming = false
   export let tokens = 0
 
+  const dispatch = createEventDispatcher()
   let copiedId = null
 
   $: estimatedTokens = tokens || (content ? Math.max(1, Math.ceil(content.trim().split(/\s+/).filter(Boolean).length * 1.3)) : 0)
@@ -16,6 +18,10 @@
       copiedId = id
       setTimeout(() => copiedId = null, 1500)
     })
+  }
+
+  function triggerEdit() {
+    dispatch('edit', { content })
   }
 </script>
 
@@ -87,6 +93,14 @@
             <span>Copiar</span>
           {/if}
         </button>
+
+        {#if role === 'user'}
+          <button class="flex items-center gap-1 text-[0.65rem] font-medium px-2 py-0.5 rounded-full transition-all cursor-pointer border border-border bg-surface-alt text-text-muted hover:text-accent hover:bg-accent-light"
+            on:click={triggerEdit} title="Editar mensaje y reenviar">
+            <LucideIcons name="pencil" size={11} />
+            <span>Editar</span>
+          </button>
+        {/if}
       </div>
     {/if}
   </div>

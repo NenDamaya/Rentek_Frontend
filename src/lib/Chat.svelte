@@ -105,6 +105,13 @@
     scrollDown(true)
   }
 
+  function handleEditMessage(e, index) {
+    if (loading) return
+    const textToEdit = e.detail?.content || ''
+    messages = messages.slice(0, index)
+    input = textToEdit
+  }
+
   async function send() {
     const text = input.trim()
     if (!text || loading) return
@@ -325,7 +332,7 @@
     <div class="flex-1 overflow-y-auto scroll-smooth bg-bg" bind:this={chatContainer} on:scroll={handleScroll}>
       <div class="max-w-3xl mx-auto px-4 py-6">
         {#each messages as msg, i (i)}
-          <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} tokens={msg.tokens} />
+          <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} tokens={msg.tokens} on:edit={(e) => handleEditMessage(e, i)} />
         {/each}
         {#if loading}
           <div class="flex items-center gap-3 py-4 ml-11">
