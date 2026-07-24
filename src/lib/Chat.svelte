@@ -112,10 +112,24 @@
     input = textToEdit
   }
 
+  function adjustTextareaHeight() {
+    if (!textareaEl) return
+    textareaEl.style.height = 'auto'
+    const newHeight = Math.min(textareaEl.scrollHeight, 180)
+    textareaEl.style.height = `${newHeight}px`
+  }
+
+  $: if (input !== undefined) {
+    if (typeof window !== 'undefined') {
+      setTimeout(adjustTextareaHeight, 0)
+    }
+  }
+
   async function send() {
     const text = input.trim()
     if (!text || loading) return
     input = ''
+    if (textareaEl) textareaEl.style.height = 'auto'
     loading = true
     streaming = true
     abortController = new AbortController()
@@ -412,11 +426,12 @@
           <textarea
             bind:this={textareaEl}
             bind:value={input}
+            on:input={adjustTextareaHeight}
             on:keydown={handleKeydown}
             placeholder="Escribe tu pregunta..."
             rows="1"
             disabled={loading}
-            class="w-full resize-none outline-none text-sm leading-relaxed max-h-[120px] min-h-[44px] transition-colors bg-surface-alt border border-text-disabled rounded-xl text-text py-[11px] px-4 font-[inherit] focus:border-accent"
+            class="w-full resize-none outline-none text-sm leading-relaxed max-h-[180px] min-h-[44px] bg-surface-alt border border-text-disabled rounded-2xl text-text py-[11px] px-4 font-[inherit] focus:border-accent transition-[border-color] overflow-y-auto"
           ></textarea>
         </div>
         {#if loading}
