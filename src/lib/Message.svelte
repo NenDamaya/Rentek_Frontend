@@ -19,6 +19,19 @@
   }
 </script>
 
+{#if role === 'system'}
+  <div class="flex items-center justify-center my-4 px-2">
+    <div class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-surface-alt border border-border text-xs text-text-2 shadow-xs max-w-xl">
+      <div class="w-6 h-6 rounded-lg bg-accent-light flex items-center justify-center text-accent border border-accent-border shrink-0">
+        <LucideIcons name="sparkles" size={13} />
+      </div>
+      <div class="flex-1 min-w-0 leading-relaxed">
+        <span class="font-bold text-accent">Sistema:</span>
+        <span class="text-text-muted"> {content}</span>
+      </div>
+    </div>
+  </div>
+{:else}
 <div class="flex items-start gap-3 mb-5" class:flex-row-reverse={role === 'user'}>
   <div class="flex flex-col items-center gap-0.5 shrink-0">
     <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm
@@ -75,3 +88,4 @@
     {/if}
   </div>
 </div>
+{/if}
