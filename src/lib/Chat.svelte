@@ -223,6 +223,7 @@
       statusText = ''
       loadStatus = ''
       abortController = null
+      refreshKey++
       tick().then(() => textareaEl?.focus())
     }
   }
@@ -237,6 +238,7 @@
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
         body: JSON.stringify({ title }),
       })
+      refreshKey++
     } catch {}
   }
 
