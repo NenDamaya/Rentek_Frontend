@@ -75,14 +75,14 @@
   }
 
   function saveLocalMessages(chatId, msgs) {
-    if (!chatId || !msgs) return
+    if (!chatId || chatId === 'undefined' || !msgs) return
     try {
       localStorage.setItem(`rentek_msgs_${chatId}`, JSON.stringify(msgs))
     } catch {}
   }
 
   function getLocalMessages(chatId) {
-    if (!chatId) return null
+    if (!chatId || chatId === 'undefined') return null
     try {
       const raw = localStorage.getItem(`rentek_msgs_${chatId}`)
       return raw ? JSON.parse(raw) : null
@@ -92,12 +92,13 @@
   }
 
   async function selectChat(e) {
-    const chatId = e.detail
-    if (chatId === currentChatId) return
+    const chatId = (e && typeof e === 'object' && 'detail' in e) ? e.detail : e
+    if (chatId === currentChatId && chatId !== null) return
     currentChatId = chatId
     contextTokens = 0
     wasCompacted = false
-    if (!chatId) {
+    if (!chatId || chatId === 'undefined') {
+      currentChatId = null
       chatStatus = null
       conversationId = null
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
@@ -264,9 +265,25 @@
   }
 
   async function updateChatTitle(chatId, firstMessage) {
+    if (!chatId || chatId === 'undefined') return
+    const title = firstMessage.slice(0, 40) + (firstMessage.length > 40 ? '...' : '')
+    try {
+      const raw = localStorage.getItem('rentek_local_chats')
+      if (raw) {
+        const list = JSON.parse(raw)
+        const idx = list.findIndex(c => c.id === chatId)
+        if (idx !== -1) {
+          list[idx].title = title
+          localStorage.setItem('rentek_local_chats', JSON.stringify(list))
+        }
+      }
+    } catch {}
+
     const token = localStorage.getItem('rentek_token')
-    if (!token) return
-    const title = firstMessage.slice(0, 50) + (firstMessage.length > 50 ? '...' : '')
+    if (!token) {
+      refreshKey++
+      return
+    }
     try {
       await fetch(`${API_BASE}/api/chats/${chatId}`, {
         method: 'PUT',
