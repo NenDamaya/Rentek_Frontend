@@ -26,6 +26,23 @@
   let userScrolledUp = false
   let chatStatus = null
   let userBlocked = false
+  let contextTokens = 0
+  let maxContext = 8192
+
+  $: contextPercent = Math.min(100, Math.round((contextTokens / maxContext) * 100))
+  $: isHighContext = contextPercent >= 75
+
+  $: {
+    if (messages && messages.length > 0) {
+      const text = messages.map(m => m.content || '').join(' ')
+      const estimated = Math.ceil(text.trim().split(/\s+/).filter(Boolean).length * 1.3)
+      if (!contextTokens || estimated > contextTokens) {
+        contextTokens = estimated
+      }
+    } else {
+      contextTokens = 0
+    }
+  }
 
   $: showScrollBtn = !streaming && userScrolledUp
 
@@ -152,6 +169,8 @@
         } else if (event.type === 'done') {
           conversationId = event.conversation_id
           if (event.tokens) responseTokens = event.tokens
+          if (event.context_tokens) contextTokens = event.context_tokens
+          if (event.max_context) maxContext = event.max_context
         } else if (event.type === 'error') {
           fullContent = event.content || 'Error desconocido'
         }
@@ -265,6 +284,17 @@
         </div>
       </div>
       <div class="flex items-center gap-2 ml-auto">
+        {#if messages && messages.length > 1}
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-alt border border-border text-xs text-text-muted font-mono"
+               title="{contextTokens.toLocaleString()} / {maxContext.toLocaleString()} tokens usados en este chat">
+            <LucideIcons name="cpu" size={13} />
+            <span class="hidden xs:inline">{contextPercent}% contexto</span>
+            <div class="w-10 h-1.5 rounded-full bg-border overflow-hidden hidden sm:block">
+              <div class="h-full transition-all duration-300 {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}" style="width: {contextPercent}%"></div>
+            </div>
+          </div>
+        {/if}
+
         {#if user?.display_name || user?.username}
           <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-alt border border-border">
             <div class="w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold bg-accent text-white">
@@ -280,6 +310,19 @@
         </button>
       </div>
     </header>
+
+    {#if isHighContext}
+      <div class="bg-amber-light border-b border-amber-border px-4 py-2 flex items-center justify-between text-xs text-amber font-medium shrink-0 animate-fadeIn">
+        <div class="flex items-center gap-2">
+          <LucideIcons name="alert-triangle" size={14} />
+          <span>Este chat ha alcanzado el <strong>{contextPercent}%</strong> de la ventana de contexto. Para proyectos nuevos, te sugerimos iniciar un <strong>Nuevo Chat</strong> para mantener la precisión.</span>
+        </div>
+        <button class="px-2.5 py-1 rounded bg-amber text-white text-[0.7rem] font-bold hover:bg-amber-hover transition-colors border-none cursor-pointer shrink-0 ml-2"
+                on:click={() => selectChat({ detail: null })}>
+          + Nuevo Chat
+        </button>
+      </div>
+    {/if}
 
     <div class="flex-1 overflow-y-auto scroll-smooth bg-bg" bind:this={chatContainer} on:scroll={handleScroll}>
       <div class="max-w-3xl mx-auto px-4 py-6">
