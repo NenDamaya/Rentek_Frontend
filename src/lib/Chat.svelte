@@ -74,6 +74,23 @@
     if (!isDesktop) sidebarOpen = false
   }
 
+  function saveLocalMessages(chatId, msgs) {
+    if (!chatId || !msgs) return
+    try {
+      localStorage.setItem(`rentek_msgs_${chatId}`, JSON.stringify(msgs))
+    } catch {}
+  }
+
+  function getLocalMessages(chatId) {
+    if (!chatId) return null
+    try {
+      const raw = localStorage.getItem(`rentek_msgs_${chatId}`)
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  }
+
   async function selectChat(e) {
     const chatId = e.detail
     if (chatId === currentChatId) return
@@ -86,21 +103,30 @@
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
       return
     }
-    const token = localStorage.getItem('rentek_token')
-    try {
-      const res = await fetch(`${API_BASE}/api/chats/${chatId}/messages`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
-      })
-      const data = await res.json()
-      chatStatus = data.chat_status || null
-      conversationId = data.conversation_id || null
-      messages = data.messages?.length > 0
-        ? data.messages.filter(m => m.role === 'user' || m.role === 'assistant')
-        : [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
-    } catch {
-      chatStatus = null
-      conversationId = null
+
+    const localMsgs = getLocalMessages(chatId)
+    if (localMsgs && localMsgs.length > 0) {
+      messages = localMsgs
+    } else {
       messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
+    }
+
+    const token = localStorage.getItem('rentek_token')
+    if (token) {
+      try {
+        const res = await fetch(`${API_BASE}/api/chats/${chatId}/messages`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          chatStatus = data.chat_status || null
+          conversationId = data.conversation_id || null
+          if (data.messages && data.messages.length > 0) {
+            messages = data.messages.filter(m => m.role === 'user' || m.role === 'assistant')
+            saveLocalMessages(chatId, messages)
+          }
+        }
+      } catch {}
     }
     scrollDown(true)
   }
@@ -233,6 +259,7 @@
       statusText = ''
       loadStatus = ''
       abortController = null
+      saveLocalMessages(currentChatId, messages)
       tick().then(() => textareaEl?.focus())
     }
   }
