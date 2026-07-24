@@ -285,12 +285,18 @@
       </div>
       <div class="flex items-center gap-2 ml-auto">
         {#if messages && messages.length > 1}
-          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-alt border border-border text-xs text-text-muted font-mono"
-               title="{contextTokens.toLocaleString()} / {maxContext.toLocaleString()} tokens usados en este chat">
-            <LucideIcons name="cpu" size={13} />
-            <span class="hidden xs:inline">{contextPercent}% contexto</span>
-            <div class="w-10 h-1.5 rounded-full bg-border overflow-hidden hidden sm:block">
-              <div class="h-full transition-all duration-300 {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}" style="width: {contextPercent}%"></div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
+               title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
+            <div class="flex items-center gap-1.5 text-text-muted font-medium">
+              <LucideIcons name="brain" size={14} />
+              <span class="font-bold text-text-2">Contexto IA:</span>
+              <span class="font-mono text-xs font-semibold {contextPercent > 75 ? 'text-red font-bold' : contextPercent > 50 ? 'text-amber font-bold' : 'text-accent'}">
+                {contextPercent}%
+              </span>
+            </div>
+            <div class="w-14 sm:w-20 h-2 rounded-full bg-border overflow-hidden relative">
+              <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
+                   style="width: {contextPercent}%"></div>
             </div>
           </div>
         {/if}
