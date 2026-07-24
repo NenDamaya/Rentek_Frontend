@@ -146,15 +146,27 @@
           {/if}
 
           <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0
-            {currentChatId === chat.id ? 'bg-accent-border' : 'bg-surface-hover'}">
-            <LucideIcons name="bot" size={14} />
+            {currentChatId === chat.id ? 'bg-accent-border text-accent' : 'bg-surface-hover text-text-muted'}">
+            {#if chat.has_solicitud}
+              <LucideIcons name="calendar-check" size={15} class="text-accent" />
+            {:else}
+              <LucideIcons name="bot" size={14} />
+            {/if}
           </div>
 
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium truncate m-0
-              {currentChatId === chat.id ? 'text-text' : 'text-text-2'}">
-              {chat.title || 'Nueva conversación'}
-            </p>
+            <div class="flex items-center gap-1">
+              <p class="text-xs font-medium truncate m-0 flex-1
+                {currentChatId === chat.id ? 'text-text font-semibold' : 'text-text-2'}">
+                {chat.title || 'Nueva conversación'}
+              </p>
+              {#if chat.has_solicitud}
+                <span class="inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[0.55rem] font-bold bg-accent-light text-accent border border-accent-border shrink-0" title="Cita o Cotización registrada en este chat">
+                  <LucideIcons name="check-circle-2" size={9} />
+                  <span>Cita</span>
+                </span>
+              {/if}
+            </div>
             <p class="text-[0.6rem] m-0 text-text-faint">
               {getRelativeTime(chat.updated_at || chat.created_at)}
             </p>
