@@ -121,14 +121,27 @@
           on:click={() => selectChat(chat.id)}>
 
           {#if deleteConfirmId === chat.id}
-            <div class="absolute inset-0 flex items-center justify-between px-3 rounded-xl z-10 bg-red-light border border-red-border">
-              <span class="text-[0.65rem] font-medium text-red">Eliminar?</span>
-              <div class="flex gap-1">
-                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none bg-red text-white"
-                  on:click={(e) => deleteChat(e, chat.id)}>Si</button>
-                <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none bg-surface-hover text-text-muted"
-                  on:click={(e) => { e.stopPropagation(); deleteConfirmId = null }}>No</button>
-              </div>
+            <div class="absolute inset-0 flex items-center justify-between px-3 py-1 rounded-xl z-20 bg-red-light border border-red-border shadow-md animate-fadeIn">
+              {#if chat.has_solicitud}
+                <div class="flex-1 min-w-0 pr-2">
+                  <span class="text-[0.65rem] font-bold text-red block truncate">⚠️ ¡Atención! Cita vinculada</span>
+                  <span class="text-[0.55rem] text-red leading-none block">Se cancelará tu cita registrada.</span>
+                </div>
+                <div class="flex gap-1 shrink-0">
+                  <button class="px-2 py-1 rounded text-[0.6rem] font-bold transition-all cursor-pointer border-none bg-red text-white hover:bg-red-hover"
+                    on:click={(e) => deleteChat(e, chat.id)} title="Cancelar cita y borrar chat">Sí, borrar</button>
+                  <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none bg-surface-hover text-text-muted"
+                    on:click={(e) => { e.stopPropagation(); deleteConfirmId = null }}>No</button>
+                </div>
+              {:else}
+                <span class="text-[0.65rem] font-medium text-red">¿Eliminar chat?</span>
+                <div class="flex gap-1 shrink-0">
+                  <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none bg-red text-white"
+                    on:click={(e) => deleteChat(e, chat.id)}>Sí</button>
+                  <button class="px-2 py-1 rounded text-[0.6rem] font-medium transition-all cursor-pointer border-none bg-surface-hover text-text-muted"
+                    on:click={(e) => { e.stopPropagation(); deleteConfirmId = null }}>No</button>
+                </div>
+              {/if}
             </div>
           {/if}
 
