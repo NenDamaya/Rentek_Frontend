@@ -19,20 +19,32 @@
 
   async function loadChats() {
     const token = localStorage.getItem('rentek_token')
-    if (!token) {
-      loadingChats = false
-      return
+    let remoteChats = []
+    if (token) {
+      if (chats.length === 0) loadingChats = true
+      try {
+        const res = await fetch(`${API_BASE}/api/chats`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          remoteChats = data.chats || []
+        }
+      } catch {}
     }
-    if (chats.length === 0) loadingChats = true
+
+    let localChats = []
     try {
-      const res = await fetch(`${API_BASE}/api/chats`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        chats = data.chats || []
-      }
+      const raw = localStorage.getItem('rentek_local_chats')
+      localChats = raw ? JSON.parse(raw) : []
     } catch {}
+
+    // Combine remote and local chats uniquely by ID
+    const map = new Map()
+    for (const c of [...remoteChats, ...localChats]) {
+      if (!map.has(c.id)) map.set(c.id, c)
+    }
+    chats = Array.from(map.values())
     loadingChats = false
   }
 
@@ -54,17 +66,26 @@
   async function deleteChat(e, chatId) {
     e.stopPropagation()
     const token = localStorage.getItem('rentek_token')
-    if (!token) return
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/api/chats/${chatId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
+        })
+      } catch {}
+    }
     try {
-      await fetch(`${API_BASE}/api/chats/${chatId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
-      })
-      if (currentChatId === chatId) {
-        selectChat(null)
+      const raw = localStorage.getItem('rentek_local_chats')
+      if (raw) {
+        const list = JSON.parse(raw).filter(c => c.id !== chatId)
+        localStorage.setItem('rentek_local_chats', JSON.stringify(list))
       }
-      await loadChats()
     } catch {}
+
+    if (currentChatId === chatId) {
+      selectChat(null)
+    }
+    await loadChats()
     deleteConfirmId = null
   }
 

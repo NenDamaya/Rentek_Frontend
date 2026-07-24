@@ -135,6 +135,15 @@
     abortController = new AbortController()
 
     if (!currentChatId) {
+      currentChatId = crypto.randomUUID()
+      const newChatObj = { id: currentChatId, title: text.slice(0, 35) + (text.length > 35 ? '...' : ''), created_at: new Date().toISOString(), has_solicitud: false }
+      try {
+        const raw = localStorage.getItem('rentek_local_chats')
+        const list = raw ? JSON.parse(raw) : []
+        localStorage.setItem('rentek_local_chats', JSON.stringify([newChatObj, ...list]))
+      } catch {}
+      refreshKey++
+
       const token = localStorage.getItem('rentek_token')
       if (token) {
         try {
@@ -152,14 +161,8 @@
             const chat = await res.json()
             currentChatId = chat.id
             updateChatTitle(chat.id, text)
-          } else {
-            currentChatId = crypto.randomUUID()
           }
-        } catch {
-          currentChatId = crypto.randomUUID()
-        }
-      } else {
-        currentChatId = crypto.randomUUID()
+        } catch {}
       }
     } else {
       updateChatTitle(currentChatId, text)
