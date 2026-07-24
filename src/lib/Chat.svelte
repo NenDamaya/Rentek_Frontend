@@ -266,7 +266,7 @@
 
   <div class="fixed md:relative z-50 h-full transition-transform duration-200 ease-in-out
     {sidebarOpen || isDesktop ? 'translate-x-0' : '-translate-x-full'}">
-    <Sidebar {user} {currentChatId} {refreshKey} on:select={handleSelectChat} on:close={closeSidebar} {isDesktop} />
+    <Sidebar {user} {currentChatId} {refreshKey} on:select={handleSelectChat} on:close={closeSidebar} on:logout={() => dispatch('logout')} {isDesktop} />
   </div>
 
   <div class="flex flex-col h-screen flex-1 min-w-0">
@@ -300,12 +300,6 @@
             </div>
           </div>
         {/if}
-
-        <button class="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all cursor-pointer border-none bg-surface-alt text-text-muted border border-border hover:bg-red-light hover:border-red-border hover:text-red"
-          on:click={() => dispatch('logout')} title="Cerrar sesion">
-          <LucideIcons name="log-out" size={14} />
-          <span class="hidden sm:inline">Salir</span>
-        </button>
       </div>
     </header>
 

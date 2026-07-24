@@ -174,6 +174,10 @@
           <p class="text-[0.6rem] truncate m-0 text-text-faint">{user.email}</p>
         {/if}
       </div>
+      <button class="p-1.5 rounded-lg transition-all cursor-pointer border-none bg-transparent text-text-muted hover:bg-red-light hover:text-red shrink-0"
+        on:click={() => dispatch('logout')} title="Cerrar sesión">
+        <LucideIcons name="log-out" size={16} />
+      </button>
     </div>
   {/if}
 </aside>
