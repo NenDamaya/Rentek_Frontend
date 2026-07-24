@@ -28,6 +28,7 @@
   let userBlocked = false
   let contextTokens = 0
   let maxContext = 8192
+  let wasCompacted = false
 
   $: contextPercent = Math.min(100, Math.round((contextTokens / maxContext) * 100))
   $: isHighContext = contextPercent >= 75
@@ -171,6 +172,7 @@
           if (event.tokens) responseTokens = event.tokens
           if (event.context_tokens) contextTokens = event.context_tokens
           if (event.max_context) maxContext = event.max_context
+          if (event.was_compacted) wasCompacted = true
         } else if (event.type === 'error') {
           fullContent = event.content || 'Error desconocido'
         }
@@ -302,6 +304,19 @@
         {/if}
       </div>
     </header>
+
+    {#if wasCompacted}
+      <div class="bg-accent-light border-b border-accent-border px-4 py-2 flex items-center justify-between text-xs text-text-2 font-medium shrink-0 animate-fadeIn">
+        <div class="flex items-center gap-2">
+          <LucideIcons name="sparkles" size={15} class="text-accent shrink-0" />
+          <span>✨ <strong>Memoria sintetizada:</strong> He condensado la conversación anterior para mantener respuestas rápidas. <strong>Tus restricciones (terreno, pasillo y equipos) permanecen a salvo.</strong></span>
+        </div>
+        <button class="p-1 rounded text-text-muted hover:text-text hover:bg-surface-alt transition-colors border-none bg-transparent cursor-pointer shrink-0 ml-2"
+                on:click={() => wasCompacted = false} title="Cerrar aviso">
+          <LucideIcons name="x" size={14} />
+        </button>
+      </div>
+    {/if}
 
     {#if isHighContext}
       <div class="bg-amber-light border-b border-amber-border px-4 py-2 flex items-center justify-between text-xs text-amber font-medium shrink-0 animate-fadeIn">
