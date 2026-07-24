@@ -419,10 +419,10 @@
         </div>
       </div>
     {:else}
-    <div class="shrink-0 bg-surface border-t border-border">
-      <form class="max-w-3xl mx-auto flex gap-3 px-4 py-3 items-end" on:submit|preventDefault={send}>
-        <VoiceButton on:transcript={handleVoice} on:interim={handleVoiceInterim} disabled={loading} />
-        <div class="flex-1 relative">
+    <div class="shrink-0 bg-bg pb-4 pt-2 px-4">
+      <form class="max-w-3xl mx-auto bg-surface border border-border rounded-2xl p-2 shadow-sm focus-within:border-accent focus-within:shadow-md transition-all" on:submit|preventDefault={send}>
+        <div class="flex items-end gap-2">
+          <VoiceButton on:transcript={handleVoice} on:interim={handleVoiceInterim} disabled={loading} />
           <textarea
             bind:this={textareaEl}
             bind:value={input}
@@ -431,24 +431,24 @@
             placeholder="Escribe tu pregunta..."
             rows="1"
             disabled={loading}
-            class="w-full resize-none outline-none text-sm leading-relaxed max-h-[180px] min-h-[44px] bg-surface-alt border border-text-disabled rounded-2xl text-text py-[11px] px-4 font-[inherit] focus:border-accent transition-[border-color] overflow-y-auto"
+            class="flex-1 resize-none outline-none text-sm leading-relaxed max-h-[180px] min-h-[38px] bg-transparent border-none text-text py-2 px-2 font-[inherit] overflow-y-auto"
           ></textarea>
+          {#if loading}
+            <button type="button" on:click={stopStream}
+              class="w-[38px] h-[38px] rounded-xl border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm bg-red text-white hover:bg-red/90 mb-0.5"
+              title="Detener generación">
+              <LucideIcons name="square" size={16} />
+            </button>
+          {:else}
+            <button type="submit" disabled={!input.trim()}
+              class="w-[38px] h-[38px] rounded-xl border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm mb-0.5
+                {!input.trim()
+                  ? 'bg-surface-alt text-text-disabled'
+                  : 'bg-accent text-white hover:bg-accent-hover'}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          {/if}
         </div>
-        {#if loading}
-          <button type="button" on:click={stopStream}
-            class="w-[44px] h-[44px] rounded-full border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm bg-red text-white hover:bg-red/90"
-            title="Detener generación">
-            <LucideIcons name="square" size={18} />
-          </button>
-        {:else}
-          <button type="submit" disabled={!input.trim()}
-            class="w-[44px] h-[44px] rounded-full border-none cursor-pointer shrink-0 flex items-center justify-center transition-all shadow-sm
-              {!input.trim()
-                ? 'bg-text-disabled text-text-faint'
-                : 'bg-accent text-white'}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        {/if}
       </form>
     </div>
     {/if}
