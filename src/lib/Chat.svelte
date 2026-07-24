@@ -148,11 +148,18 @@
             streaming = false
             return
           }
-          const chat = await res.json()
-          currentChatId = chat.id
-          refreshKey++
-          updateChatTitle(chat.id, text)
-        } catch {}
+          if (res.ok) {
+            const chat = await res.json()
+            currentChatId = chat.id
+            updateChatTitle(chat.id, text)
+          } else {
+            currentChatId = crypto.randomUUID()
+          }
+        } catch {
+          currentChatId = crypto.randomUUID()
+        }
+      } else {
+        currentChatId = crypto.randomUUID()
       }
     } else {
       updateChatTitle(currentChatId, text)
@@ -223,7 +230,6 @@
       statusText = ''
       loadStatus = ''
       abortController = null
-      refreshKey++
       tick().then(() => textareaEl?.focus())
     }
   }

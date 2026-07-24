@@ -19,8 +19,11 @@
 
   async function loadChats() {
     const token = localStorage.getItem('rentek_token')
-    if (!token) return
-    loadingChats = true
+    if (!token) {
+      loadingChats = false
+      return
+    }
+    if (chats.length === 0) loadingChats = true
     try {
       const res = await fetch(`${API_BASE}/api/chats`, {
         headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
