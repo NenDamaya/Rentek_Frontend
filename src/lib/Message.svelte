@@ -44,14 +44,6 @@
         <img src="/rentek-black.png" alt="Rentek" class="w-6 h-6 object-contain" />
       {/if}
     </div>
-    <button class="p-1 rounded transition-colors cursor-pointer text-text-2 hover:text-black"
-      on:click={() => copyContent('msg')} title="Copiar mensaje">
-      {#if copiedId}
-        <LucideIcons name="clipboard-check" size={12} />
-      {:else}
-        <LucideIcons name="clipboard" size={12} />
-      {/if}
-    </button>
   </div>
 
   <div class="max-w-[85%] sm:max-w-[70%] min-w-0">
@@ -84,6 +76,17 @@
           <LucideIcons name="zap" size={10} />
           {estimatedTokens} tokens
         </span>
+
+        <button class="flex items-center gap-1 text-[0.65rem] font-medium px-2 py-0.5 rounded-full transition-all cursor-pointer border border-border bg-surface-alt text-text-muted hover:text-text hover:bg-surface-hover"
+          on:click={() => copyContent('msg')} title="Copiar mensaje">
+          {#if copiedId}
+            <LucideIcons name="clipboard-check" size={11} class="text-green" />
+            <span class="text-green">¡Copiado!</span>
+          {:else}
+            <LucideIcons name="clipboard" size={11} />
+            <span>Copiar</span>
+          {/if}
+        </button>
       </div>
     {/if}
   </div>
