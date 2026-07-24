@@ -285,30 +285,22 @@
       </div>
       <div class="flex items-center gap-2 ml-auto">
         {#if messages && messages.length > 1}
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
+          <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
                title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
-            <div class="flex items-center gap-1.5 text-text-muted font-medium">
-              <LucideIcons name="brain" size={14} />
-              <span class="font-bold text-text-2">Contexto IA:</span>
+            <div class="flex items-center gap-1 sm:gap-1.5 text-text-muted font-medium">
+              <LucideIcons name="brain" size={14} class="shrink-0" />
+              <span class="font-bold text-text-2 hidden xs:inline">Contexto:</span>
               <span class="font-mono text-xs font-semibold {contextPercent > 75 ? 'text-red font-bold' : contextPercent > 50 ? 'text-amber font-bold' : 'text-accent'}">
                 {contextPercent}%
               </span>
             </div>
-            <div class="w-14 sm:w-20 h-2 rounded-full bg-border overflow-hidden relative">
+            <div class="w-10 xs:w-14 sm:w-20 h-2 rounded-full bg-border overflow-hidden relative shrink-0">
               <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
                    style="width: {contextPercent}%"></div>
             </div>
           </div>
         {/if}
 
-        {#if user?.display_name || user?.username}
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-alt border border-border">
-            <div class="w-6 h-6 rounded-full flex items-center justify-center text-[0.6rem] font-bold bg-accent text-white">
-              {(user.display_name || user.username)[0]?.toUpperCase()}
-            </div>
-            <span class="text-xs font-medium hidden sm:inline text-text-2">{user.display_name || user.username}</span>
-          </div>
-        {/if}
         <button class="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg transition-all cursor-pointer border-none bg-surface-alt text-text-muted border border-border hover:bg-red-light hover:border-red-border hover:text-red"
           on:click={() => dispatch('logout')} title="Cerrar sesion">
           <LucideIcons name="log-out" size={14} />
