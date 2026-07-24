@@ -5,8 +5,11 @@
   export let content = ''
   export let toolCalls = []
   export let streaming = false
+  export let tokens = 0
 
   let copiedId = null
+
+  $: estimatedTokens = tokens || (content ? Math.max(1, Math.ceil(content.trim().split(/\s+/).filter(Boolean).length * 1.3)) : 0)
 
   function copyContent(id) {
     navigator.clipboard.writeText(content).then(() => {
@@ -61,5 +64,14 @@
         : 'bg-surface text-text-2 border border-border'}">
       <MarkdownRenderer {content} />
     </div>
+
+    {#if content && !streaming}
+      <div class="flex items-center gap-1.5 mt-1 px-1" class:justify-end={role === 'user'}>
+        <span class="text-[0.65rem] text-text-faint flex items-center gap-1 font-mono bg-surface-alt px-2 py-0.5 rounded-full border border-border">
+          <LucideIcons name="zap" size={10} />
+          {estimatedTokens} tokens
+        </span>
+      </div>
+    {/if}
   </div>
 </div>

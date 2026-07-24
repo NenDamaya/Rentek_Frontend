@@ -123,6 +123,7 @@
     try {
       let fullContent = ''
       let toolCallsFound = []
+      let responseTokens = 0
 
       const token = localStorage.getItem('rentek_token')
       const userName = user?.display_name || user?.username || null
@@ -150,6 +151,7 @@
           statusText = `Ejecutando: ${toolCallsFound.map(c => c.name).join(', ')}`
         } else if (event.type === 'done') {
           conversationId = event.conversation_id
+          if (event.tokens) responseTokens = event.tokens
         } else if (event.type === 'error') {
           fullContent = event.content || 'Error desconocido'
         }
@@ -161,9 +163,9 @@
 
       const lastMsg = messages[messages.length - 1]
       if (lastMsg?.role === 'assistant') {
-        messages = [...messages.slice(0, -1), { role: 'assistant', content: fullContent, streaming: false }]
+        messages = [...messages.slice(0, -1), { role: 'assistant', content: fullContent, streaming: false, tokens: responseTokens }]
       } else {
-        messages = [...messages, { role: 'assistant', content: fullContent, streaming: false }]
+        messages = [...messages, { role: 'assistant', content: fullContent, streaming: false, tokens: responseTokens }]
       }
       scrollDown(true)
     } catch (err) {
@@ -282,7 +284,7 @@
     <div class="flex-1 overflow-y-auto scroll-smooth bg-bg" bind:this={chatContainer} on:scroll={handleScroll}>
       <div class="max-w-3xl mx-auto px-4 py-6">
         {#each messages as msg, i (i)}
-          <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} />
+          <Message role={msg.role} content={msg.content} toolCalls={msg.toolCalls} streaming={msg.streaming} tokens={msg.tokens} />
         {/each}
         {#if loading}
           <div class="flex items-center gap-3 py-4 ml-11">
