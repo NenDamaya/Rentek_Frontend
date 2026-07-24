@@ -176,6 +176,7 @@
           const res = await fetch(`${API_BASE}/api/chats`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'User-Agent': 'rentek-app/1.0' },
+            body: JSON.stringify({ id: currentChatId }),
           })
           if (res.status === 403) {
             userBlocked = true
@@ -184,9 +185,7 @@
             return
           }
           if (res.ok) {
-            const chat = await res.json()
-            currentChatId = chat.id
-            updateChatTitle(chat.id, text)
+            updateChatTitle(currentChatId, text)
           }
         } catch {}
       }
