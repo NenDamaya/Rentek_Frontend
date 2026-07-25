@@ -342,61 +342,53 @@
   }
 </script>
 
-<div class="flex {isDrawer ? 'h-full min-h-0' : 'h-screen'} w-full bg-bg">
-  {#if !isDrawer && !hideSidebar}
-    {#if sidebarOpen && !isDesktop}
-      <div class="fixed inset-0 z-40 bg-black/50 md:hidden" on:click={closeSidebar} role="presentation"></div>
-    {/if}
-
-    <div class="fixed md:relative z-50 h-full transition-transform duration-200 ease-in-out
-      {sidebarOpen || isDesktop ? 'translate-x-0' : '-translate-x-full'}">
-      <Sidebar {user} {currentChatId} {refreshKey} on:select={handleSelectChat} on:close={closeSidebar} on:logout={() => dispatch('logout')} {isDesktop} />
-    </div>
+<div class="flex {isDrawer ? 'h-full min-h-0' : 'h-screen'} w-full bg-bg relative overflow-hidden">
+  {#if sidebarOpen}
+    <div class="fixed inset-0 z-40 bg-black/50" on:click={closeSidebar} role="presentation"></div>
   {/if}
 
+  <div class="absolute md:relative z-50 h-full transition-transform duration-200 ease-in-out
+    {sidebarOpen || (isDesktop && !isDrawer) ? 'translate-x-0' : '-translate-x-full'}">
+    <Sidebar {user} {currentChatId} {refreshKey} on:select={handleSelectChat} on:close={closeSidebar} on:logout={() => dispatch('logout')} {isDesktop} />
+  </div>
+
   <div class="flex flex-col {isDrawer ? 'h-full min-h-0' : 'h-screen'} flex-1 min-w-0">
-    {#if !isDrawer}
-      <header class="flex items-center gap-3 px-4 py-3 shrink-0 bg-surface border-b border-border">
-        {#if !hideSidebar}
-          <button class="md:hidden p-2 rounded-lg transition-colors text-text-muted hover:bg-surface-alt" on:click={toggleSidebar}>
-            <LucideIcons name="menu" size={20} />
-          </button>
-        {/if}
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
-            <img src="/rentek-white.png" alt="Rentek" class="w-7 h-7 object-contain" />
-          </div>
-          <div>
-            <h1 class="text-sm font-bold text-text m-0">Asesor de Maquinaria</h1>
-            <p class="text-[0.65rem] text-text-faint m-0">Renta de equipo pesado</p>
-          </div>
+    <header class="flex items-center justify-between gap-2 px-3.5 py-2.5 shrink-0 bg-surface border-b border-border text-xs">
+      <div class="flex items-center gap-2">
+        <button class="px-2.5 py-1.5 rounded-lg transition-colors text-text-muted hover:bg-surface-alt flex items-center gap-1.5 bg-surface-alt border border-border"
+                on:click={toggleSidebar} title="Ver historial de chats anteriores">
+          <LucideIcons name="menu" size={15} />
+          <span class="font-medium text-xs">Chats</span>
+        </button>
+        <button class="px-2.5 py-1.5 rounded-lg transition-colors text-accent hover:bg-accent-light flex items-center gap-1 bg-accent-light/50 border border-accent-border font-bold text-xs"
+                on:click={() => selectChat({ detail: null })} title="Iniciar nueva consulta">
+          <LucideIcons name="plus" size={14} />
+          <span>Nuevo</span>
+        </button>
+      </div>
+
+      <!-- Token Context Meter -->
+      <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
+           title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
+        <div class="flex items-center gap-1 sm:gap-1.5 text-text-muted font-medium">
+          <LucideIcons name="brain" size={14} class="shrink-0 text-accent" />
+          <span class="font-bold text-text-2 hidden xs:inline">Contexto:</span>
+          <span class="font-mono text-xs font-bold {contextPercent > 75 ? 'text-red' : contextPercent > 50 ? 'text-amber' : 'text-accent'}">
+            {contextPercent}%
+          </span>
         </div>
-        <div class="flex items-center gap-2 ml-auto">
-          {#if messages && messages.length > 1}
-            <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
-                 title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
-              <div class="flex items-center gap-1 sm:gap-1.5 text-text-muted font-medium">
-                <LucideIcons name="brain" size={14} class="shrink-0" />
-                <span class="font-bold text-text-2 hidden xs:inline">Contexto:</span>
-                <span class="font-mono text-xs font-semibold {contextPercent > 75 ? 'text-red font-bold' : contextPercent > 50 ? 'text-amber font-bold' : 'text-accent'}">
-                  {contextPercent}%
-                </span>
-              </div>
-              <div class="w-10 xs:w-14 sm:w-20 h-2 rounded-full bg-border overflow-hidden relative shrink-0">
-                <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
-                     style="width: {contextPercent}%"></div>
-              </div>
-            </div>
-          {/if}
+        <div class="w-10 xs:w-14 sm:w-16 h-2 rounded-full bg-border overflow-hidden relative shrink-0">
+          <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
+               style="width: {contextPercent}%"></div>
         </div>
-      </header>
-    {/if}
+      </div>
+    </header>
 
     {#if isHighContext}
       <div class="bg-amber-light border-b border-amber-border px-4 py-2 flex items-center justify-between text-xs text-amber font-medium shrink-0 animate-fadeIn">
         <div class="flex items-center gap-2">
           <LucideIcons name="alert-triangle" size={14} />
-          <span>Este chat ha alcanzado el <strong>{contextPercent}%</strong> de la ventana de contexto. Para proyectos nuevos, te sugerimos iniciar un <strong>Nuevo Chat</strong> para mantener la precisión.</span>
+          <span>Este chat ha alcanzado el <strong>{contextPercent}%</strong> de la ventana de contexto. Te sugerimos iniciar un <strong>Nuevo Chat</strong>.</span>
         </div>
         <button class="px-2.5 py-1 rounded bg-amber text-white text-[0.7rem] font-bold hover:bg-amber-hover transition-colors border-none cursor-pointer shrink-0 ml-2"
                 on:click={() => selectChat({ detail: null })}>
