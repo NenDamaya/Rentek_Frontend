@@ -9,7 +9,11 @@
   export let user = null
   export let isDrawer = false
   export let hideSidebar = false
+  export let contextPercent = 0
   const dispatch = createEventDispatcher()
+
+  export function toggleSidebar() { sidebarOpen = !sidebarOpen }
+  export function newChat() { selectChat({ detail: null }) }
 
   let messages = []
   let input = ''
@@ -68,7 +72,6 @@
     messages = [{ role: 'assistant', content: '¡Hola! Soy tu asesor de maquinaria pesada. ¿En qué puedo ayudarte?' }]
   })
 
-  function toggleSidebar() { sidebarOpen = !sidebarOpen }
   function closeSidebar() { sidebarOpen = false }
 
   function handleSelectChat(e) {
@@ -353,36 +356,38 @@
   </div>
 
   <div class="flex flex-col {isDrawer ? 'h-full min-h-0' : 'h-screen'} flex-1 min-w-0">
-    <header class="flex items-center justify-between gap-2 px-3.5 py-2.5 shrink-0 bg-surface border-b border-border text-xs">
-      <div class="flex items-center gap-2">
-        <button class="px-2.5 py-1.5 rounded-lg transition-colors text-text-muted hover:bg-surface-alt flex items-center gap-1.5 bg-surface-alt border border-border"
-                on:click={toggleSidebar} title="Ver historial de chats anteriores">
-          <LucideIcons name="menu" size={15} />
-          <span class="font-medium text-xs">Chats</span>
-        </button>
-        <button class="px-2.5 py-1.5 rounded-lg transition-colors text-accent hover:bg-accent-light flex items-center gap-1 bg-accent-light/50 border border-accent-border font-bold text-xs"
-                on:click={() => selectChat({ detail: null })} title="Iniciar nueva consulta">
-          <LucideIcons name="plus" size={14} />
-          <span>Nuevo</span>
-        </button>
-      </div>
+    {#if !isDrawer}
+      <header class="flex items-center justify-between gap-2 px-3.5 py-2.5 shrink-0 bg-surface border-b border-border text-xs">
+        <div class="flex items-center gap-2">
+          <button class="px-2.5 py-1.5 rounded-lg transition-colors text-text-muted hover:bg-surface-alt flex items-center gap-1.5 bg-surface-alt border border-border"
+                  on:click={toggleSidebar} title="Ver historial de chats anteriores">
+            <LucideIcons name="menu" size={15} />
+            <span class="font-medium text-xs">Chats</span>
+          </button>
+          <button class="px-2.5 py-1.5 rounded-lg transition-colors text-accent hover:bg-accent-light flex items-center gap-1 bg-accent-light/50 border border-accent-border font-bold text-xs"
+                  on:click={() => selectChat({ detail: null })} title="Iniciar nueva consulta">
+            <LucideIcons name="plus" size={14} />
+            <span>Nuevo</span>
+          </button>
+        </div>
 
-      <!-- Token Context Meter -->
-      <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
-           title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
-        <div class="flex items-center gap-1 sm:gap-1.5 text-text-muted font-medium">
-          <LucideIcons name="brain" size={14} class="shrink-0 text-accent" />
-          <span class="font-bold text-text-2 hidden xs:inline">Contexto:</span>
-          <span class="font-mono text-xs font-bold {contextPercent > 75 ? 'text-red' : contextPercent > 50 ? 'text-amber' : 'text-accent'}">
-            {contextPercent}%
-          </span>
+        <!-- Token Context Meter -->
+        <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
+             title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
+          <div class="flex items-center gap-1 sm:gap-1.5 text-text-muted font-medium">
+            <LucideIcons name="brain" size={14} class="shrink-0 text-accent" />
+            <span class="font-bold text-text-2 hidden xs:inline">Contexto:</span>
+            <span class="font-mono text-xs font-bold {contextPercent > 75 ? 'text-red' : contextPercent > 50 ? 'text-amber' : 'text-accent'}">
+              {contextPercent}%
+            </span>
+          </div>
+          <div class="w-10 xs:w-14 sm:w-16 h-2 rounded-full bg-border overflow-hidden relative shrink-0">
+            <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
+                 style="width: {contextPercent}%"></div>
+          </div>
         </div>
-        <div class="w-10 xs:w-14 sm:w-16 h-2 rounded-full bg-border overflow-hidden relative shrink-0">
-          <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
-               style="width: {contextPercent}%"></div>
-        </div>
-      </div>
-    </header>
+      </header>
+    {/if}
 
     {#if isHighContext}
       <div class="bg-amber-light border-b border-amber-border px-4 py-2 flex items-center justify-between text-xs text-amber font-medium shrink-0 animate-fadeIn">
