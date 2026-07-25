@@ -37,7 +37,7 @@
       <div class="flex items-center gap-3 cursor-pointer" on:click={() => setTab('catalog')}>
         <img src="/rentek-white.png" alt="Rentek Logo" class="w-9 h-9 object-contain transform hover:scale-105 transition-transform" />
         <div>
-          <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 bg-clip-text text-transparent">
+          <span class="font-black text-xl tracking-tight text-white">
             RENTEK
           </span>
           <span class="hidden sm:inline-block ml-2 text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -106,13 +106,17 @@
         <div class="relative">
           <button
             on:click={() => userMenuOpen = !userMenuOpen}
-            class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-surface-hover border border-border/50 text-left"
+            class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-surface-hover border border-border/50 text-left transition-colors"
           >
-            <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 font-bold flex items-center justify-center text-sm">
-              {user?.name ? user.name[0].toUpperCase() : 'U'}
-            </div>
-            <span class="hidden lg:inline text-xs font-medium text-text max-w-[120px] truncate">
-              {user?.name || user?.email || 'Usuario'}
+            {#if user?.picture || user?.avatar_url || user?.photo}
+              <img
+                src={user.picture || user.avatar_url || user.photo}
+                alt={user?.name || 'Perfil'}
+                class="w-7 h-7 rounded-full object-cover border border-amber-400/50 shadow-sm"
+              />
+            {/if}
+            <span class="hidden sm:inline text-xs font-bold text-text max-w-[140px] truncate">
+              {user?.name || user?.email || 'Mi Cuenta'}
             </span>
             <LucideIcons icon="chevron-down" class="w-3.5 h-3.5 text-text-faint" />
           </button>
