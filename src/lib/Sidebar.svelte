@@ -106,10 +106,10 @@
 <aside class="h-full flex flex-col w-[260px] bg-surface border-r border-border">
   <div class="flex items-center justify-between p-4 shrink-0 border-b border-border-light">
     <div class="flex items-center gap-2.5">
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
-        <img src="/rentek-white.png" alt="Rentek" class="w-7 h-7 object-contain" />
+      <div class="p-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+        <img src="/rentek-white.png" alt="Rentek" class="w-6 h-6 object-contain [filter:brightness(0)_saturate(100%)_invert(73%)_sepia(85%)_saturate(1200%)_hue-rotate(355deg)]" />
       </div>
-      <span class="text-sm font-bold text-text">Rentek</span>
+      <span class="text-sm font-black text-amber-500">Rentek</span>
     </div>
     {#if !isDesktop}
       <button class="p-2 rounded-lg transition-colors text-text-muted hover:bg-surface-alt"

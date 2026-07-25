@@ -34,10 +34,12 @@
     <div class="flex items-center justify-between h-16">
       
       <!-- Brand Logo -->
-      <div class="flex items-center gap-3 cursor-pointer" on:click={() => setTab('catalog')}>
-        <img src="/rentek-white.png" alt="Rentek Logo" class="w-9 h-9 object-contain transform hover:scale-105 transition-transform" />
+      <div class="flex items-center gap-2.5 cursor-pointer" on:click={() => setTab('catalog')}>
+        <div class="p-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+          <img src="/rentek-white.png" alt="Rentek Logo" class="w-7 h-7 object-contain [filter:brightness(0)_saturate(100%)_invert(73%)_sepia(85%)_saturate(1200%)_hue-rotate(355deg)] transform hover:scale-105 transition-transform" />
+        </div>
         <div>
-          <span class="font-black text-xl tracking-tight text-white">
+          <span class="font-black text-xl tracking-tight text-amber-500">
             RENTEK
           </span>
           <span class="hidden sm:inline-block ml-2 text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">

@@ -83,8 +83,9 @@
 
 {#if !checked}
   <div class="flex flex-col items-center justify-center h-screen gap-3 bg-bg text-text-faint">
-    <span class="animate-pulse text-accent"><img src="/rentek-white.png" alt="Rentek" class="w-[72px] h-[72px] object-contain" /></span>
-    <p>Cargando Rentek E-Commerce...</p>
+    <span class="animate-pulse"><img src="/rentek-white.png" alt="Rentek" class="w-[72px] h-[72px] object-contain [filter:brightness(0)_saturate(100%)_invert(73%)_sepia(85%)_saturate(1200%)_hue-rotate(355deg)]" /></span>
+    <span class="font-black text-2xl text-amber-500 tracking-wider">RENTEK</span>
+    <p class="text-xs text-text-muted">Cargando E-Commerce...</p>
   </div>
 {:else if user}
   <div class="min-h-screen bg-bg text-text flex flex-col font-sans">
