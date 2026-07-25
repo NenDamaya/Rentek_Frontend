@@ -84,11 +84,14 @@ export async function getObservabilityLogs(limit = 50) {
 
 export async function fetchCategorias() {
   try {
-    const res = await fetch(`${API_BASE}/api/maquinaria`, {
+    const res = await fetch(`${API_BASE}/api/catalog`, {
       headers: HEADERS,
     })
     if (res.ok) {
-      return await res.json()
+      const data = await res.json()
+      if (Array.isArray(data) && data.length > 0) {
+        return data
+      }
     }
   } catch (e) {
     console.warn('API error, using client fallback for categories:', e)
