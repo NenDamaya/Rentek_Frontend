@@ -347,10 +347,10 @@
 
 <div class="flex {isDrawer ? 'h-full min-h-0' : 'h-screen'} w-full bg-bg relative overflow-hidden">
   {#if sidebarOpen}
-    <div class="fixed inset-0 z-40 bg-black/50" on:click={closeSidebar} role="presentation"></div>
+    <div class="absolute inset-0 z-40 bg-slate-950/60 backdrop-blur-xs" on:click={closeSidebar} role="presentation"></div>
   {/if}
 
-  <div class="absolute md:relative z-50 h-full transition-transform duration-200 ease-in-out
+  <div class="{isDrawer ? 'absolute inset-y-0 left-0 shadow-2xl' : 'fixed md:relative'} z-50 h-full transition-transform duration-200 ease-in-out
     {sidebarOpen || (isDesktop && !isDrawer) ? 'translate-x-0' : '-translate-x-full'}">
     <Sidebar {user} {currentChatId} {refreshKey} on:select={handleSelectChat} on:close={closeSidebar} on:logout={() => dispatch('logout')} {isDesktop} />
   </div>

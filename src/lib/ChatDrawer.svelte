@@ -38,12 +38,12 @@
       <div class="p-3 sm:p-4 border-b border-border flex items-center justify-between bg-surface/95 shrink-0 gap-2">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shrink-0">
-            <LucideIcons icon="sparkles" class="w-5 h-5" />
+            <LucideIcons icon="sparkles" class="w-5 h-5 text-amber-400" />
           </div>
           <div class="min-w-0">
             <h2 class="text-sm font-bold text-text truncate flex items-center gap-1.5">
               Asesor IA
-              <span class="hidden md:inline-block px-1.5 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 font-mono">RAG</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 font-mono">RAG</span>
             </h2>
           </div>
         </div>
@@ -55,7 +55,7 @@
             title="Ver historial de conversaciones"
           >
             <LucideIcons name="menu" size={14} />
-            <span class="hidden xs:inline">Chats</span>
+            <span class="hidden sm:inline">Historial</span>
           </button>
 
           <button
@@ -64,7 +64,7 @@
             title="Nueva consulta"
           >
             <LucideIcons name="plus" size={14} />
-            <span class="hidden xs:inline">Nuevo</span>
+            <span class="hidden sm:inline">Nuevo</span>
           </button>
 
           <div class="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
@@ -75,8 +75,15 @@
             </span>
           </div>
 
-          <button on:click={close} class="p-1.5 rounded-xl text-text-muted hover:text-text hover:bg-surface-hover border border-border/50 transition-colors">
+          <!-- Prominent Close Button -->
+          <button
+            on:click={close}
+            class="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all flex items-center gap-1 shrink-0 font-bold text-xs shadow-xs"
+            title="Cerrar Asesor IA"
+            aria-label="Cerrar chat"
+          >
             <LucideIcons icon="x" class="w-4 h-4" />
+            <span class="hidden sm:inline">Cerrar</span>
           </button>
         </div>
       </div>
