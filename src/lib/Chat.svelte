@@ -10,7 +10,17 @@
   export let isDrawer = false
   export let hideSidebar = false
   export let contextPercent = 0
+  export let initialQuery = ''
   const dispatch = createEventDispatcher()
+
+  let lastHandledQuery = ''
+  $: if (initialQuery && initialQuery !== lastHandledQuery) {
+    lastHandledQuery = initialQuery
+    input = initialQuery
+    tick().then(() => {
+      if (textareaEl) textareaEl.focus()
+    })
+  }
 
   export function toggleSidebar() { sidebarOpen = !sidebarOpen }
   export function newChat() { selectChat({ detail: null }) }

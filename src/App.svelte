@@ -56,7 +56,17 @@
     saveCart([])
   }
 
+  let initialChatQuery = ''
+
   function handleConsultAI(e) {
+    const item = e.detail?.item || e.detail
+    if (item && item.nombre) {
+      initialChatQuery = `Hola, necesito asesoría sobre la máquina "${item.nombre}" (${item.categoria || 'Maquinaria'}). ¿Podrías darme sus especificaciones técnicas clave y recomendarme si es adecuada para mi obra?`
+    } else if (typeof e.detail === 'string') {
+      initialChatQuery = e.detail
+    } else {
+      initialChatQuery = ''
+    }
     isChatOpen = true
   }
 
@@ -121,6 +131,7 @@
     <ChatDrawer
       isOpen={isChatOpen}
       {user}
+      initialQuery={initialChatQuery}
       on:close={() => isChatOpen = false}
       on:logout={handleLogout}
     />

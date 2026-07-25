@@ -90,7 +90,7 @@
 
       <!-- Chat Embedded Body -->
       <div class="flex-1 overflow-hidden min-h-0">
-        <Chat bind:this={chatRef} bind:contextPercent={contextPercent} {user} isDrawer={true} on:logout />
+        <Chat bind:this={chatRef} bind:contextPercent={contextPercent} {user} {initialQuery} isDrawer={true} on:logout />
       </div>
 
     </div>
