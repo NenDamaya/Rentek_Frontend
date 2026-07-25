@@ -266,36 +266,47 @@
             </div>
 
             <!-- Pricing & Action Buttons -->
-            <div
-              class="pt-3 border-t border-border/60 flex items-center justify-between"
-            >
-              <div>
-                <span
-                  class="text-[10px] text-text-faint uppercase font-medium block"
-                  >Tarifa desde</span
-                >
-                <span class="text-lg font-black text-amber-400">
-                  ${item.precios?.diario?.toLocaleString() || "3,500"}
-                  <span class="text-xs font-normal text-text-muted"
-                    >MXN /día</span
-                  >
-                </span>
+            <div class="pt-3 border-t border-border/60 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-text-faint uppercase font-medium block">Tarifa desde</span>
+                  <span class="text-lg font-black text-amber-400">
+                    ${item.precios?.diario?.toLocaleString() || "3,500"}
+                    <span class="text-xs font-normal text-text-muted">MXN /día</span>
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    Disponible
+                  </span>
+                </div>
               </div>
 
-              <div class="flex items-center gap-1.5">
+              <!-- Action Buttons Row -->
+              <div class="flex items-center gap-1.5 w-full">
+                <button
+                  on:click={() => openDetail(item)}
+                  class="flex-1 px-3 py-2.5 rounded-xl bg-surface-alt hover:bg-surface-hover text-text font-bold text-xs transition-all border border-border flex items-center justify-center gap-1.5 shadow-xs"
+                  title="Ver especificaciones técnicas y ficha detallada"
+                >
+                  <LucideIcons icon="file-text" class="w-3.5 h-3.5 text-amber-400" />
+                  <span>Detalles</span>
+                </button>
+
                 <button
                   on:click={() => handleConsultAI(item)}
-                  class="p-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition-colors"
-                  title="Preguntar al Asesor IA sobre este equipo"
+                  class="p-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 transition-colors shrink-0"
+                  title="Consultar al Asesor IA sobre este equipo"
                 >
-                  <LucideIcons icon="sparkles" class="w-4 h-4" />
+                  <LucideIcons icon="sparkles" class="w-4 h-4 text-amber-300" />
                 </button>
+
                 <button
                   on:click={() => handleAddToCartFromCard(item)}
-                  class="px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-amber-500/20"
+                  class="flex-1 px-3 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20"
                 >
                   <LucideIcons icon="shopping-cart" class="w-3.5 h-3.5" />
-                  Rentar
+                  <span>Rentar</span>
                 </button>
               </div>
             </div>

@@ -237,6 +237,42 @@ export const FALLBACK_CATALOG = [
     descripcion: "Generador diésel insonorizado cabinado de alta eficiencia para suministro ininterrumpido de energía en sitios remotos u obras sin red eléctrica.",
     recomendado: ["Alimentación eléctrica de obras", "Eventos y respaldo hospitalario/industrial"],
     no_recomendado: ["Ambientes cerrados sin ventilación de escape de gases"]
+  },
+  {
+    id: "minicargadores",
+    categoria: "Compactadores",
+    nombre: "Minicargador Compacto (Bobcat)",
+    marcas: ["Bobcat", "Caterpillar", "Kubota", "Case"],
+    modelos: ["Bobcat S570", "CAT 262D3", "Kubota SSV65"],
+    precios: { diario: 1950, semanal: 11700, mensual: 39000 },
+    imagen: "/images/retroexcavadora.jpg",
+    specs: {
+      "Potencia": "74 HP",
+      "Capacidad de carga": "860 - 1,200 kg",
+      "Peso operativo": "3,100 kg",
+      "Velocidad máx": "11.8 km/h"
+    },
+    descripcion: "Minicargador de llantas o banda de goma ultra versátil para maniobrar en espacios reducidos, limpieza de escombro y carga de camionetas.",
+    recomendado: ["Espacios urbanos reducidos", "Limpieza de predios y acarreos menores", "Nivelación fina y jardinería"],
+    no_recomendado: ["Excavaciones profundas", "Zonas con fango extremo de alta flotación"]
+  },
+  {
+    id: "motoniveladoras",
+    categoria: "Bulldozers",
+    nombre: "Motoniveladora Articulada",
+    marcas: ["Caterpillar", "Komatsu", "John Deere", "CASE"],
+    modelos: ["CAT 140K", "Komatsu GD655-5", "John Deere 670G"],
+    precios: { diario: 4900, semanal: 29400, mensual: 98000 },
+    imagen: "/images/bulldozer.jpg",
+    specs: {
+      "Potencia de motor": "170 - 200 HP",
+      "Ancho de vertedera": "3.7 - 4.3 metros",
+      "Peso operativo": "17,500 kg",
+      "Tracción": "6x4 Articulada"
+    },
+    descripcion: "Niveladora de alta precisión para conformación de taludes, perfilado de subbases de carretera y esparcimiento de balasto/grava.",
+    recomendado: ["Construcción y conservación de carreteras", "Nivelación de plataformas industriales", "Perfilado de caminos rurales"],
+    no_recomendado: ["Excavación en roca sólida", "Desmonte inicial de árboles grandes"]
   }
 ]
 
