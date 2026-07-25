@@ -77,15 +77,15 @@
         <!-- AI Advisor Toggle Button -->
         <button
           on:click={toggleChat}
-          class="relative flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all shadow-sm border {isChatOpen ? 'bg-indigo-600 text-white border-indigo-500 shadow-indigo-500/20' : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30 hover:bg-indigo-500/20'}"
+          class="relative flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-md border bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 text-white border-indigo-400/50 hover:shadow-indigo-500/30"
           title="Consultar al Asesor IA con RAG"
         >
-          <span class="relative flex h-2.5 w-2.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-200 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
           </span>
-          <LucideIcons icon="sparkles" class="w-3.5 h-3.5" />
-          <span class="hidden sm:inline">Asesor IA</span>
+          <LucideIcons icon="sparkles" class="w-3.5 h-3.5 text-amber-300" />
+          <span class="font-extrabold text-xs">Asesor IA</span>
         </button>
 
         <!-- Shopping Cart Button -->
@@ -178,10 +178,10 @@
 
   <button
     on:click={toggleChat}
-    class="flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-all {isChatOpen ? 'text-indigo-400 font-bold' : 'text-indigo-300'}"
+    class="flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold transition-all {isChatOpen ? 'text-white bg-indigo-600 shadow-md shadow-indigo-600/30' : 'text-indigo-300 hover:text-white'}"
   >
-    <LucideIcons icon="sparkles" class="w-5 h-5" />
-    <span class="text-[10px]">Asesor IA</span>
+    <LucideIcons icon="sparkles" class="w-5 h-5 text-amber-300" />
+    <span class="text-[10px] font-bold">Asesor IA</span>
   </button>
 </nav>
 

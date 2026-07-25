@@ -71,41 +71,41 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
   
   <!-- Hero Section -->
-  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950/40 border border-border p-8 md:p-12 shadow-2xl">
-    <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/60 border border-slate-800 p-8 md:p-12 shadow-2xl">
+    <div class="absolute -right-10 -bottom-10 opacity-15 pointer-events-none">
       <LucideIcons icon="hard-hat" class="w-96 h-96 text-amber-400" />
     </div>
     
     <div class="relative z-10 max-w-2xl space-y-4">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold uppercase tracking-wider">
-        <LucideIcons icon="sparkles" class="w-3.5 h-3.5" />
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-extrabold uppercase tracking-wider shadow-sm">
+        <LucideIcons icon="sparkles" class="w-4 h-4 text-amber-400" />
         Renta de Maquinaria Pesada Garantizada
       </div>
       
-      <h1 class="text-3xl md:text-5xl font-black text-text tracking-tight leading-tight">
+      <h1 class="text-3xl md:text-5xl font-black text-white drop-shadow-md tracking-tight leading-tight">
         Alquila la Maquinaria Pesada que tu Obra Necesita.
       </h1>
       
-      <p class="text-sm md:text-base text-text-faint leading-relaxed">
+      <p class="text-sm md:text-base text-slate-200 leading-relaxed font-medium">
         Excavadoras, Bulldozers, Retroexcavadoras y Grúas con disponibilidad inmediata. Cotiza tarifas por día, semana o mes con entrega en obra y asesoría inteligente por IA.
       </p>
 
       <!-- Search input bar inside hero -->
-      <div class="pt-2 flex flex-col sm:flex-row gap-3">
+      <div class="pt-3 flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
-          <LucideIcons icon="search" class="absolute left-3.5 top-3.5 w-4 h-4 text-text-faint" />
+          <LucideIcons icon="search" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="Buscar por equipo, marca (CAT, Komatsu...), o trabajo..."
             bind:value={searchQuery}
-            class="w-full pl-10 pr-4 py-3 bg-surface/90 border border-border rounded-xl text-sm text-text placeholder-text-faint focus:outline-none focus:border-amber-400 backdrop-blur"
+            class="w-full pl-10 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:border-amber-400 backdrop-blur shadow-inner"
           />
         </div>
         <button
           on:click={() => dispatch('toggleChat')}
-          class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
+          class="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 border border-indigo-400/30"
         >
-          <LucideIcons icon="sparkles" class="w-4 h-4" />
+          <LucideIcons icon="sparkles" class="w-4 h-4 text-amber-300" />
           Asesor IA RAG
         </button>
       </div>
