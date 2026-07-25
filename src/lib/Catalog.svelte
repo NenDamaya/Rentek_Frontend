@@ -244,7 +244,16 @@
                 {item.nombre}
               </h3>
 
-              <p class="text-xs text-text-faint line-clamp-2 mt-1">
+              <!-- Explicit Link below title -->
+              <button
+                on:click={() => openDetail(item)}
+                class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-400 hover:text-amber-300 hover:underline mt-0.5 transition-colors"
+              >
+                <span>Ver Ficha Técnica y Especificaciones</span>
+                <LucideIcons icon="arrow-right" class="w-3 h-3" />
+              </button>
+
+              <p class="text-xs text-text-faint line-clamp-2 mt-2">
                 {item.descripcion}
               </p>
 
@@ -286,11 +295,11 @@
               <div class="flex items-center gap-1.5 w-full">
                 <button
                   on:click={() => openDetail(item)}
-                  class="flex-1 px-3 py-2.5 rounded-xl bg-surface-alt hover:bg-surface-hover text-text font-bold text-xs transition-all border border-border flex items-center justify-center gap-1.5 shadow-xs"
-                  title="Ver especificaciones técnicas y ficha detallada"
+                  class="flex-1 px-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs transition-all border border-amber-500/30 flex items-center justify-center gap-1.5 shadow-xs"
+                  title="Abrir ficha técnica completa, fotos y cotizador por periodo"
                 >
                   <LucideIcons icon="file-text" class="w-3.5 h-3.5 text-amber-400" />
-                  <span>Detalles</span>
+                  <span>Más Detalles</span>
                 </button>
 
                 <button
