@@ -18,23 +18,23 @@
   <div class="fixed inset-0 z-50 overflow-hidden bg-slate-950/70 backdrop-blur-sm flex justify-end">
     
     <!-- Backdrop -->
-    <div class="fixed inset-0" on:click={close}></div>
+    <div class="fixed inset-0" on:click={close} on:keydown={(e) => e.key === 'Escape' && close()} role="button" tabindex="0" aria-label="Cerrar chat"></div>
 
     <!-- Slide drawer -->
-    <div class="relative w-full max-w-2xl bg-surface border-l border-border h-full shadow-2xl flex flex-col z-10 animate-slide-in">
+    <div class="relative w-full sm:max-w-2xl bg-surface border-l border-border h-full shadow-2xl flex flex-col z-10 animate-slide-in">
       
       <!-- Drawer Header -->
-      <div class="p-4 border-b border-border flex items-center justify-between bg-surface/90">
+      <div class="p-3.5 sm:p-4 border-b border-border flex items-center justify-between bg-surface/90 shrink-0">
         <div class="flex items-center gap-3">
           <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <LucideIcons icon="sparkles" class="w-5 h-5" />
           </div>
           <div>
             <h2 class="text-sm font-bold text-text flex items-center gap-2">
-              Asesor Inteligente de Maquinaria
+              Asesor Inteligente
               <span class="px-2 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300 font-mono">RAG + Ollama</span>
             </h2>
-            <p class="text-xs text-text-faint">Consulta requerimientos técnicos, normas de seguridad y recomendaciones</p>
+            <p class="text-[11px] sm:text-xs text-text-faint">Consulta requerimientos técnicos y recomendaciones</p>
           </div>
         </div>
         <button on:click={close} class="p-2 rounded-lg text-text-muted hover:text-text hover:bg-surface-hover">
@@ -43,8 +43,8 @@
       </div>
 
       <!-- Chat Embedded Body -->
-      <div class="flex-1 overflow-hidden">
-        <Chat {user} on:logout />
+      <div class="flex-1 overflow-hidden min-h-0">
+        <Chat {user} isDrawer={true} hideSidebar={true} on:logout />
       </div>
 
     </div>

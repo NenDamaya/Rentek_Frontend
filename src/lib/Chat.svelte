@@ -7,6 +7,8 @@
   import { chatCompletions, chatCompletionsStream, API_BASE } from './api.js'
 
   export let user = null
+  export let isDrawer = false
+  export let hideSidebar = false
   const dispatch = createEventDispatcher()
 
   let messages = []
@@ -340,49 +342,55 @@
   }
 </script>
 
-<div class="flex h-screen w-full bg-bg">
-  {#if sidebarOpen && !isDesktop}
-    <div class="fixed inset-0 z-40 bg-black/50 md:hidden" on:click={closeSidebar} role="presentation"></div>
+<div class="flex {isDrawer ? 'h-full min-h-0' : 'h-screen'} w-full bg-bg">
+  {#if !isDrawer && !hideSidebar}
+    {#if sidebarOpen && !isDesktop}
+      <div class="fixed inset-0 z-40 bg-black/50 md:hidden" on:click={closeSidebar} role="presentation"></div>
+    {/if}
+
+    <div class="fixed md:relative z-50 h-full transition-transform duration-200 ease-in-out
+      {sidebarOpen || isDesktop ? 'translate-x-0' : '-translate-x-full'}">
+      <Sidebar {user} {currentChatId} {refreshKey} on:select={handleSelectChat} on:close={closeSidebar} on:logout={() => dispatch('logout')} {isDesktop} />
+    </div>
   {/if}
 
-  <div class="fixed md:relative z-50 h-full transition-transform duration-200 ease-in-out
-    {sidebarOpen || isDesktop ? 'translate-x-0' : '-translate-x-full'}">
-    <Sidebar {user} {currentChatId} {refreshKey} on:select={handleSelectChat} on:close={closeSidebar} on:logout={() => dispatch('logout')} {isDesktop} />
-  </div>
-
-  <div class="flex flex-col h-screen flex-1 min-w-0">
-    <header class="flex items-center gap-3 px-4 py-3 shrink-0 bg-surface border-b border-border">
-      <button class="md:hidden p-2 rounded-lg transition-colors text-text-muted hover:bg-surface-alt" on:click={toggleSidebar}>
-        <LucideIcons name="menu" size={20} />
-      </button>
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
-          <img src="/rentek-white.png" alt="Rentek" class="w-7 h-7 object-contain" />
-        </div>
-        <div>
-          <h1 class="text-sm font-bold text-text m-0">Asesor de Maquinaria</h1>
-          <p class="text-[0.65rem] text-text-faint m-0">Renta de equipo pesado</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 ml-auto">
-        {#if messages && messages.length > 1}
-          <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
-               title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
-            <div class="flex items-center gap-1 sm:gap-1.5 text-text-muted font-medium">
-              <LucideIcons name="brain" size={14} class="shrink-0" />
-              <span class="font-bold text-text-2 hidden xs:inline">Contexto:</span>
-              <span class="font-mono text-xs font-semibold {contextPercent > 75 ? 'text-red font-bold' : contextPercent > 50 ? 'text-amber font-bold' : 'text-accent'}">
-                {contextPercent}%
-              </span>
-            </div>
-            <div class="w-10 xs:w-14 sm:w-20 h-2 rounded-full bg-border overflow-hidden relative shrink-0">
-              <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
-                   style="width: {contextPercent}%"></div>
-            </div>
-          </div>
+  <div class="flex flex-col {isDrawer ? 'h-full min-h-0' : 'h-screen'} flex-1 min-w-0">
+    {#if !isDrawer}
+      <header class="flex items-center gap-3 px-4 py-3 shrink-0 bg-surface border-b border-border">
+        {#if !hideSidebar}
+          <button class="md:hidden p-2 rounded-lg transition-colors text-text-muted hover:bg-surface-alt" on:click={toggleSidebar}>
+            <LucideIcons name="menu" size={20} />
+          </button>
         {/if}
-      </div>
-    </header>
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
+            <img src="/rentek-white.png" alt="Rentek" class="w-7 h-7 object-contain" />
+          </div>
+          <div>
+            <h1 class="text-sm font-bold text-text m-0">Asesor de Maquinaria</h1>
+            <p class="text-[0.65rem] text-text-faint m-0">Renta de equipo pesado</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 ml-auto">
+          {#if messages && messages.length > 1}
+            <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-surface-alt border border-border text-xs shadow-xs"
+                 title="Uso de Memoria/Contexto: {contextTokens.toLocaleString()} de {maxContext.toLocaleString()} tokens">
+              <div class="flex items-center gap-1 sm:gap-1.5 text-text-muted font-medium">
+                <LucideIcons name="brain" size={14} class="shrink-0" />
+                <span class="font-bold text-text-2 hidden xs:inline">Contexto:</span>
+                <span class="font-mono text-xs font-semibold {contextPercent > 75 ? 'text-red font-bold' : contextPercent > 50 ? 'text-amber font-bold' : 'text-accent'}">
+                  {contextPercent}%
+                </span>
+              </div>
+              <div class="w-10 xs:w-14 sm:w-20 h-2 rounded-full bg-border overflow-hidden relative shrink-0">
+                <div class="h-full transition-all duration-500 rounded-full {contextPercent > 75 ? 'bg-red' : contextPercent > 50 ? 'bg-amber' : 'bg-accent'}"
+                     style="width: {contextPercent}%"></div>
+              </div>
+            </div>
+          {/if}
+        </div>
+      </header>
+    {/if}
 
     {#if isHighContext}
       <div class="bg-amber-light border-b border-amber-border px-4 py-2 flex items-center justify-between text-xs text-amber font-medium shrink-0 animate-fadeIn">

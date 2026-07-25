@@ -149,3 +149,39 @@
     </div>
   </div>
 </header>
+
+<!-- Mobile Bottom Navigation Bar -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-lg border-t border-border flex items-center justify-around py-2 px-1 shadow-2xl">
+  <button
+    on:click={() => setTab('catalog')}
+    class="flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-all {activeTab === 'catalog' && !isChatOpen ? 'text-amber-400 font-bold' : 'text-text-muted'}"
+  >
+    <LucideIcons icon="grid" class="w-5 h-5" />
+    <span class="text-[10px]">Catálogo</span>
+  </button>
+
+  <button
+    on:click={() => setTab('projects')}
+    class="flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-all {activeTab === 'projects' && !isChatOpen ? 'text-amber-400 font-bold' : 'text-text-muted'}"
+  >
+    <LucideIcons icon="hard-hat" class="w-5 h-5" />
+    <span class="text-[10px]">Proyectos</span>
+  </button>
+
+  <button
+    on:click={() => setTab('orders')}
+    class="flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-all {activeTab === 'orders' && !isChatOpen ? 'text-amber-400 font-bold' : 'text-text-muted'}"
+  >
+    <LucideIcons icon="file-text" class="w-5 h-5" />
+    <span class="text-[10px]">Cotizaciones</span>
+  </button>
+
+  <button
+    on:click={toggleChat}
+    class="flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-all {isChatOpen ? 'text-indigo-400 font-bold' : 'text-indigo-300'}"
+  >
+    <LucideIcons icon="sparkles" class="w-5 h-5" />
+    <span class="text-[10px]">Asesor IA</span>
+  </button>
+</nav>
+

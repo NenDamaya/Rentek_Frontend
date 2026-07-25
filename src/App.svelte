@@ -89,7 +89,7 @@
       on:logout={handleLogout}
     />
 
-    <main class="flex-1">
+    <main class="flex-1 pb-16 md:pb-0">
       {#if activeTab === 'catalog'}
         <Catalog
           on:addToCart={handleAddToCart}
