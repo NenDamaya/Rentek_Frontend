@@ -295,19 +295,20 @@
               <div class="flex items-center gap-2 w-full">
                 <button
                   on:click={() => openDetail(item)}
-                  class="flex-1 px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs transition-all border border-amber-500/30 flex items-center justify-center gap-1.5 shadow-xs"
-                  title="Abrir ficha técnica completa, fotos y cotizador por periodo"
+                  class="flex-1 px-3 py-2.5 rounded-xl bg-surface-alt hover:bg-surface-hover text-text font-bold text-xs transition-all border border-border flex items-center justify-center gap-1.5 shadow-xs"
+                  title="Ver ficha técnica completa y especificaciones"
                 >
                   <LucideIcons icon="file-text" class="w-3.5 h-3.5 text-amber-400" />
-                  <span>Más Detalles</span>
+                  <span>Ficha Técnica</span>
                 </button>
 
                 <button
-                  on:click={() => handleAddToCartFromCard(item)}
-                  class="flex-1 px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20"
+                  on:click={() => openDetail(item)}
+                  class="flex-1 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/25"
+                  title="Configurar fechas, días de renta y agregar a la cotización"
                 >
                   <LucideIcons icon="shopping-cart" class="w-3.5 h-3.5" />
-                  <span>Rentar</span>
+                  <span>Cotizar Renta</span>
                 </button>
               </div>
             </div>

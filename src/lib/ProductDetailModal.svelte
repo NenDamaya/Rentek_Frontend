@@ -173,10 +173,10 @@
               <div class="flex gap-2 mt-4">
                 <button
                   on:click={handleAddToCart}
-                  class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+                  class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-2.5 px-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
                 >
                   <LucideIcons icon="shopping-cart" class="w-4 h-4" />
-                  Añadir al Carrito
+                  Añadir a Cotización
                 </button>
                 <button
                   on:click={handleConsultAI}
