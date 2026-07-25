@@ -107,6 +107,7 @@
 
     <CartDrawer
       {cart}
+      {user}
       isOpen={isCartOpen}
       on:close={() => isCartOpen = false}
       on:removeFromCart={handleRemoveFromCart}

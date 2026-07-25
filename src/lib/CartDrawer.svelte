@@ -4,6 +4,7 @@
 
   export let cart = []
   export let isOpen = false
+  export let user = null
 
   const dispatch = createEventDispatcher()
 
@@ -11,11 +12,20 @@
   let quoteSuccess = null
 
   // Checkout form fields
+  let contactName = ''
+  let contactEmail = ''
   let projectName = ''
   let siteLocation = ''
   let contactPhone = ''
   let notes = ''
   let submitting = false
+
+  $: if (user && !contactName) {
+    contactName = user.name || user.email || ''
+  }
+  $: if (user && !contactEmail) {
+    contactEmail = user.email || ''
+  }
 
   $: subtotal = cart.reduce((acc, i) => acc + (i.calculatedTotal || 0), 0)
   $: transportEstimate = cart.length > 0 ? 3500 * cart.length : 0
@@ -36,8 +46,8 @@
   }
 
   function handleConfirmOrder() {
-    if (!projectName.trim() || !siteLocation.trim() || !contactPhone.trim()) {
-      alert('Por favor completa el nombre del proyecto, ubicación de la obra y teléfono de contacto.')
+    if (!contactName.trim() || !contactEmail.trim() || !projectName.trim() || !siteLocation.trim() || !contactPhone.trim()) {
+      alert('Por favor completa tu nombre, correo, nombre del proyecto, ubicación de la obra y teléfono de contacto.')
       return
     }
 
@@ -48,6 +58,8 @@
         id: quoteId,
         date: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
         items: [...cart],
+        contactName,
+        contactEmail,
         projectName,
         siteLocation,
         contactPhone,
@@ -156,6 +168,38 @@
           <p class="text-xs text-text-faint">Ingresa los datos para calcular flete y entrega en obra.</p>
 
           <div class="space-y-3 pt-2">
+            <!-- Solicitante / Cliente -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-medium text-text-muted">Nombre del Solicitante / Cliente *</label>
+                {#if user?.name}
+                  <span class="text-[10px] text-amber-400 font-medium">Autocompletado (editable)</span>
+                {/if}
+              </div>
+              <input
+                type="text"
+                placeholder="Ej: Ing. Jorge Cruz"
+                bind:value={contactName}
+                class="w-full bg-bg border border-border rounded-xl px-3.5 py-2.5 text-sm text-text focus:outline-none focus:border-amber-400"
+              />
+            </div>
+
+            <!-- Correo de contacto -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-medium text-text-muted">Correo Electrónico de Contacto *</label>
+                {#if user?.email}
+                  <span class="text-[10px] text-amber-400 font-medium">Autocompletado (editable)</span>
+                {/if}
+              </div>
+              <input
+                type="email"
+                placeholder="Ej: cliente@empresa.com"
+                bind:value={contactEmail}
+                class="w-full bg-bg border border-border rounded-xl px-3.5 py-2.5 text-sm text-text focus:outline-none focus:border-amber-400"
+              />
+            </div>
+
             <div>
               <label class="block text-xs font-medium text-text-muted mb-1">Nombre del Proyecto / Empresa *</label>
               <input type="text" placeholder="Ej: Obra Cimentación Parque Industrial" bind:value={projectName} class="w-full bg-bg border border-border rounded-xl px-3.5 py-2.5 text-sm text-text focus:outline-none focus:border-amber-400" />
@@ -173,7 +217,7 @@
 
             <div>
               <label class="block text-xs font-medium text-text-muted mb-1">Notas especiales de entrega (Opcional)</label>
-              <textarea rows="3" placeholder="Ej: Acceso para cama baja por portón norte..." bind:value={notes} class="w-full bg-bg border border-border rounded-xl px-3.5 py-2.5 text-sm text-text focus:outline-none focus:border-amber-400 resize-none"></textarea>
+              <textarea rows="2" placeholder="Ej: Acceso para cama baja por portón norte..." bind:value={notes} class="w-full bg-bg border border-border rounded-xl px-3.5 py-2.5 text-sm text-text focus:outline-none focus:border-amber-400 resize-none"></textarea>
             </div>
           </div>
 
