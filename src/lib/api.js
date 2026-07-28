@@ -74,6 +74,14 @@ export async function* chatCompletionsStream(messages, tools, conversationId = n
   }
 }
 
+function extractError(err) {
+  if (!err) return 'Error inesperado'
+  if (typeof err.detail === 'string') return err.detail
+  if (Array.isArray(err.detail)) return err.detail.map(e => e.msg).join(', ')
+  if (err.message) return err.message
+  return 'Error inesperado'
+}
+
 export async function login(email, password) {
   const res = await fetch(`${API_BASE}/api/auth/login`, {
     method: 'POST',
@@ -82,7 +90,7 @@ export async function login(email, password) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.detail || 'Error al iniciar sesión')
+    throw new Error(extractError(err))
   }
   return res.json()
 }
@@ -95,7 +103,7 @@ export async function register(email, password, displayName) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.detail || 'Error al registrarse')
+    throw new Error(extractError(err))
   }
   return res.json()
 }
