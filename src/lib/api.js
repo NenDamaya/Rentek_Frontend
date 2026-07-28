@@ -74,6 +74,32 @@ export async function* chatCompletionsStream(messages, tools, conversationId = n
   }
 }
 
+export async function login(username, password) {
+  const res = await fetch(`${API_BASE}/api/auth/login`, {
+    method: 'POST',
+    headers: HEADERS,
+    body: JSON.stringify({ username, password }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Error al iniciar sesión')
+  }
+  return res.json()
+}
+
+export async function register(username, password, displayName) {
+  const res = await fetch(`${API_BASE}/api/auth/register`, {
+    method: 'POST',
+    headers: HEADERS,
+    body: JSON.stringify({ username, password, display_name: displayName }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Error al registrarse')
+  }
+  return res.json()
+}
+
 export async function getObservabilityLogs(limit = 50) {
   const res = await fetch(`${API_BASE}/api/observability?limit=${limit}`, {
     headers: { 'ngrok-skip-browser-warning': 'true' },
@@ -127,6 +153,45 @@ export async function calcularCotizacion(items) {
     console.warn('API cotizacion error:', e)
   }
   return null
+}
+
+/** CART API — syncs with server-side carrito */
+export async function fetchCart(token) {
+  const headers = { ...HEADERS, 'Authorization': `Bearer ${token}` }
+  const res = await fetch(`${API_BASE}/api/carrito`, { headers })
+  if (!res.ok) return null
+  return res.json()
+}
+
+export async function addToCart(item, token) {
+  const headers = { ...HEADERS, 'Authorization': `Bearer ${token}` }
+  const res = await fetch(`${API_BASE}/api/carrito`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(item),
+  })
+  if (!res.ok) return null
+  return res.json()
+}
+
+export async function removeFromCart(itemId, token) {
+  const headers = { ...HEADERS, 'Authorization': `Bearer ${token}` }
+  const res = await fetch(`${API_BASE}/api/carrito/${itemId}`, {
+    method: 'DELETE',
+    headers,
+  })
+  if (!res.ok) return null
+  return res.json()
+}
+
+export async function checkoutCart(token) {
+  const headers = { ...HEADERS, 'Authorization': `Bearer ${token}` }
+  const res = await fetch(`${API_BASE}/api/carrito/checkout`, {
+    method: 'POST',
+    headers,
+  })
+  if (!res.ok) return null
+  return res.json()
 }
 
 export const FALLBACK_CATALOG = [

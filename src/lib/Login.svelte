@@ -1,10 +1,22 @@
 <script>
   import { onMount, createEventDispatcher } from 'svelte'
-  import { API_BASE } from './api.js'
+  import { API_BASE, login as apiLogin, register as apiRegister } from './api.js'
   import LucideIcons from './LucideIcons.svelte'
 
   const dispatch = createEventDispatcher()
+
+  let mode = 'login'
   let error = ''
+
+  let loginUsername = ''
+  let loginPassword = ''
+
+  let regUsername = ''
+  let regDisplayName = ''
+  let regPassword = ''
+  let regConfirmPassword = ''
+
+  let loading = false
 
   onMount(() => {
     const params = new URLSearchParams(window.location.search)
@@ -29,11 +41,61 @@
   function googleLogin() {
     window.location.href = `${API_BASE}/auth/google/login`
   }
+
+  async function handleLogin() {
+    error = ''
+    if (!loginUsername || !loginPassword) {
+      error = 'Todos los campos son obligatorios'
+      return
+    }
+    loading = true
+    try {
+      const data = await apiLogin(loginUsername, loginPassword)
+      localStorage.setItem('rentek_token', data.token)
+      localStorage.setItem('rentek_user', JSON.stringify(data.user))
+      dispatch('login', data.user)
+    } catch (e) {
+      error = e.message
+    } finally {
+      loading = false
+    }
+  }
+
+  async function handleRegister() {
+    error = ''
+    if (!regUsername || !regPassword || !regConfirmPassword) {
+      error = 'Todos los campos son obligatorios'
+      return
+    }
+    if (regPassword.length < 6) {
+      error = 'La contraseña debe tener al menos 6 caracteres'
+      return
+    }
+    if (regPassword !== regConfirmPassword) {
+      error = 'Las contraseñas no coinciden'
+      return
+    }
+    loading = true
+    try {
+      const data = await apiRegister(regUsername, regPassword, regDisplayName)
+      localStorage.setItem('rentek_token', data.token)
+      localStorage.setItem('rentek_user', JSON.stringify(data.user))
+      dispatch('login', data.user)
+    } catch (e) {
+      error = e.message
+    } finally {
+      loading = false
+    }
+  }
+
+  function handleKeydown(e, handler) {
+    if (e.key === 'Enter') handler()
+  }
 </script>
 
 <div class="flex items-center justify-center min-h-screen p-5 bg-bg">
   <div class="bg-surface rounded-2xl p-8 sm:p-10 w-full max-w-sm shadow-xl border border-border">
-    <div class="text-center mb-8">
+    <div class="text-center mb-6">
       <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm bg-gradient-to-br from-accent to-accent-hover text-white">
         <img src="/rentek-white.png" alt="Rentek" class="w-12 h-12 object-contain" />
       </div>
@@ -41,9 +103,128 @@
       <p class="text-sm m-0 text-text-faint">Asistente de Renta de Maquinaria Pesada</p>
     </div>
 
+    <!-- Mode Tabs -->
+    <div class="flex rounded-xl bg-surface-hover p-1 mb-6 border border-border">
+      <button
+        class="flex-1 py-2 text-sm font-medium rounded-lg transition-all {mode === 'login' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-sm' : 'text-text-muted hover:text-text'}"
+        on:click={() => { mode = 'login'; error = '' }}>
+        Iniciar Sesión
+      </button>
+      <button
+        class="flex-1 py-2 text-sm font-medium rounded-lg transition-all {mode === 'register' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-sm' : 'text-text-muted hover:text-text'}"
+        on:click={() => { mode = 'register'; error = '' }}>
+        Registrarse
+      </button>
+    </div>
+
     {#if error}
       <div class="px-3.5 py-2.5 rounded-lg text-sm mb-5 bg-red-light border border-red-border text-red">{error}</div>
     {/if}
+
+    {#if mode === 'login'}
+      <!-- Login Form -->
+      <form on:submit|preventDefault={handleLogin} class="space-y-4">
+        <div>
+          <label for="login-username" class="block text-xs font-medium text-text-muted mb-1.5">Usuario</label>
+          <input
+            id="login-username"
+            type="text"
+            bind:value={loginUsername}
+            on:keydown={e => handleKeydown(e, handleLogin)}
+            placeholder="Tu nombre de usuario"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
+          />
+        </div>
+        <div>
+          <label for="login-password" class="block text-xs font-medium text-text-muted mb-1.5">Contraseña</label>
+          <input
+            id="login-password"
+            type="password"
+            bind:value={loginPassword}
+            on:keydown={e => handleKeydown(e, handleLogin)}
+            placeholder="Tu contraseña"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          class="w-full py-3 px-4 rounded-xl font-medium cursor-pointer flex items-center justify-center gap-2 transition-all border-none bg-amber-500 text-slate-950 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-amber-500/20"
+        >
+          {#if loading}
+            <span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+          {/if}
+          Entrar
+        </button>
+      </form>
+    {:else}
+      <!-- Register Form -->
+      <form on:submit|preventDefault={handleRegister} class="space-y-4">
+        <div>
+          <label for="reg-username" class="block text-xs font-medium text-text-muted mb-1.5">Usuario</label>
+          <input
+            id="reg-username"
+            type="text"
+            bind:value={regUsername}
+            on:keydown={e => handleKeydown(e, handleRegister)}
+            placeholder="Elige un nombre de usuario"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
+          />
+        </div>
+        <div>
+          <label for="reg-display-name" class="block text-xs font-medium text-text-muted mb-1.5">Nombre visible (opcional)</label>
+          <input
+            id="reg-display-name"
+            type="text"
+            bind:value={regDisplayName}
+            on:keydown={e => handleKeydown(e, handleRegister)}
+            placeholder="Cómo te llamas"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
+          />
+        </div>
+        <div>
+          <label for="reg-password" class="block text-xs font-medium text-text-muted mb-1.5">Contraseña</label>
+          <input
+            id="reg-password"
+            type="password"
+            bind:value={regPassword}
+            on:keydown={e => handleKeydown(e, handleRegister)}
+            placeholder="Mínimo 6 caracteres"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
+          />
+        </div>
+        <div>
+          <label for="reg-confirm-password" class="block text-xs font-medium text-text-muted mb-1.5">Confirmar contraseña</label>
+          <input
+            id="reg-confirm-password"
+            type="password"
+            bind:value={regConfirmPassword}
+            on:keydown={e => handleKeydown(e, handleRegister)}
+            placeholder="Repite la contraseña"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          class="w-full py-3 px-4 rounded-xl font-medium cursor-pointer flex items-center justify-center gap-2 transition-all border-none bg-amber-500 text-slate-950 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-amber-500/20"
+        >
+          {#if loading}
+            <span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+          {/if}
+          Crear Cuenta
+        </button>
+      </form>
+    {/if}
+
+    <div class="relative my-6">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-border"></div>
+      </div>
+      <div class="relative flex justify-center text-xs">
+        <span class="px-3 bg-surface text-text-faint">O continúa con</span>
+      </div>
+    </div>
 
     <button class="w-full py-3.5 px-4 rounded-xl font-medium cursor-pointer flex items-center justify-center gap-2.5 transition-colors border-none bg-surface text-text-2 border border-text-disabled hover:bg-surface-alt"
       on:click={googleLogin}>
@@ -56,6 +237,14 @@
       Continuar con Google
     </button>
 
-    <p class="text-center text-xs mt-4 m-0 text-text-faint">Serás redirigido a Google para autenticarte</p>
+    {#if mode === 'login'}
+      <p class="text-center text-xs mt-4 m-0 text-text-faint">
+        ¿No tienes cuenta? <button class="text-amber-400 hover:text-amber-300 bg-transparent border-none p-0 underline cursor-pointer font-medium" on:click={() => { mode = 'register'; error = '' }}>Regístrate aquí</button>
+      </p>
+    {:else}
+      <p class="text-center text-xs mt-4 m-0 text-text-faint">
+        ¿Ya tienes cuenta? <button class="text-amber-400 hover:text-amber-300 bg-transparent border-none p-0 underline cursor-pointer font-medium" on:click={() => { mode = 'login'; error = '' }}>Inicia sesión aquí</button>
+      </p>
+    {/if}
   </div>
 </div>
