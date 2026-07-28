@@ -10,13 +10,19 @@
 
   let loginEmail = ''
   let loginPassword = ''
+  let loginShowPw = false
 
   let regEmail = ''
   let regDisplayName = ''
   let regPassword = ''
   let regConfirmPassword = ''
+  let regShowPw = false
+  let regShowConfirmPw = false
 
   let loading = false
+
+  $: pwMatch = regConfirmPassword.length > 0 && regPassword === regConfirmPassword
+  $: pwMismatch = regConfirmPassword.length > 0 && regPassword !== regConfirmPassword
 
   onMount(() => {
     const params = new URLSearchParams(window.location.search)
@@ -115,7 +121,6 @@
       <p class="text-sm m-0 text-text-faint">Asistente de Renta de Maquinaria Pesada</p>
     </div>
 
-    <!-- Mode Tabs -->
     <div class="flex rounded-xl bg-surface-hover p-1 mb-6 border border-border">
       <button
         class="flex-1 py-2 text-sm font-medium rounded-lg transition-all {mode === 'login' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-sm' : 'text-text-muted hover:text-text'}"
@@ -134,7 +139,6 @@
     {/if}
 
     {#if mode === 'login'}
-      <!-- Login Form -->
       <form on:submit|preventDefault={handleLogin} class="space-y-4">
         <div>
           <label for="login-email" class="block text-xs font-medium text-text-muted mb-1.5">Correo electrónico</label>
@@ -149,14 +153,23 @@
         </div>
         <div>
           <label for="login-password" class="block text-xs font-medium text-text-muted mb-1.5">Contraseña</label>
-          <input
-            id="login-password"
-            type="password"
-            bind:value={loginPassword}
-            on:keydown={e => handleKeydown(e, handleLogin)}
-            placeholder="Tu contraseña"
-            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
-          />
+          <div class="relative">
+            {#if loginShowPw}
+              <input id="login-password" type="text" bind:value={loginPassword}
+                on:keydown={e => handleKeydown(e, handleLogin)} placeholder="Tu contraseña"
+                class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all" />
+            {:else}
+              <input id="login-password" type="password" bind:value={loginPassword}
+                on:keydown={e => handleKeydown(e, handleLogin)} placeholder="Tu contraseña"
+                class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all" />
+            {/if}
+            <button type="button" on:click={() => loginShowPw = !loginShowPw}
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-text-muted hover:text-text bg-transparent border-none cursor-pointer"
+              tabindex="-1"
+            >
+              <LucideIcons name={loginShowPw ? 'eye-off' : 'eye'} size={16} />
+            </button>
+          </div>
         </div>
         <button
           type="submit"
@@ -170,7 +183,6 @@
         </button>
       </form>
     {:else}
-      <!-- Register Form -->
       <form on:submit|preventDefault={handleRegister} class="space-y-4">
         <div>
           <label for="reg-email" class="block text-xs font-medium text-text-muted mb-1.5">Correo electrónico</label>
@@ -184,7 +196,9 @@
           />
         </div>
         <div>
-          <label for="reg-display-name" class="block text-xs font-medium text-text-muted mb-1.5">Nombre visible (opcional)</label>
+          <label for="reg-display-name" class="block text-xs font-medium text-text-muted mb-1.5">
+            Nombre visible <span class="text-text-faint">(opcional)</span>
+          </label>
           <input
             id="reg-display-name"
             type="text"
@@ -196,25 +210,47 @@
         </div>
         <div>
           <label for="reg-password" class="block text-xs font-medium text-text-muted mb-1.5">Contraseña</label>
-          <input
-            id="reg-password"
-            type="password"
-            bind:value={regPassword}
-            on:keydown={e => handleKeydown(e, handleRegister)}
-            placeholder="Mínimo 6 caracteres"
-            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
-          />
+          <div class="relative">
+            {#if regShowPw}
+              <input id="reg-password" type="text" bind:value={regPassword}
+                on:keydown={e => handleKeydown(e, handleRegister)} placeholder="Mínimo 6 caracteres"
+                class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all" />
+            {:else}
+              <input id="reg-password" type="password" bind:value={regPassword}
+                on:keydown={e => handleKeydown(e, handleRegister)} placeholder="Mínimo 6 caracteres"
+                class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all" />
+            {/if}
+            <button type="button" on:click={() => regShowPw = !regShowPw}
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-text-muted hover:text-text bg-transparent border-none cursor-pointer"
+              tabindex="-1"
+            >
+              <LucideIcons name={regShowPw ? 'eye-off' : 'eye'} size={16} />
+            </button>
+          </div>
         </div>
         <div>
           <label for="reg-confirm-password" class="block text-xs font-medium text-text-muted mb-1.5">Confirmar contraseña</label>
-          <input
-            id="reg-confirm-password"
-            type="password"
-            bind:value={regConfirmPassword}
-            on:keydown={e => handleKeydown(e, handleRegister)}
-            placeholder="Repite la contraseña"
-            class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
-          />
+          <div class="relative">
+            {#if regShowConfirmPw}
+              <input id="reg-confirm-password" type="text" bind:value={regConfirmPassword}
+                on:keydown={e => handleKeydown(e, handleRegister)} placeholder="Repite la contraseña"
+                class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 {pwMatch ? 'ring-2 ring-green-500/40 border-green-500/60' : pwMismatch ? 'ring-2 ring-red-500/40 border-red-500/60' : ''} transition-all" />
+            {:else}
+              <input id="reg-confirm-password" type="password" bind:value={regConfirmPassword}
+                on:keydown={e => handleKeydown(e, handleRegister)} placeholder="Repite la contraseña"
+                class="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 {pwMatch ? 'ring-2 ring-green-500/40 border-green-500/60' : pwMismatch ? 'ring-2 ring-red-500/40 border-red-500/60' : ''} transition-all" />
+            {/if}
+            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+              {#if pwMatch}
+                <LucideIcons name="check" size={16} class="text-green-400" />
+              {:else if pwMismatch}
+                <LucideIcons name="x" size={16} class="text-red-400" />
+              {/if}
+            </div>
+          </div>
+          {#if pwMismatch}
+            <p class="text-[11px] mt-1 text-red-400">Las contraseñas no coinciden</p>
+          {/if}
         </div>
         <button
           type="submit"
