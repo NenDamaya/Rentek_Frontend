@@ -74,11 +74,11 @@ export async function* chatCompletionsStream(messages, tools, conversationId = n
   }
 }
 
-export async function login(username, password) {
+export async function login(email, password) {
   const res = await fetch(`${API_BASE}/api/auth/login`, {
     method: 'POST',
     headers: HEADERS,
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, password }),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
@@ -87,11 +87,11 @@ export async function login(username, password) {
   return res.json()
 }
 
-export async function register(username, password, displayName) {
+export async function register(email, password, displayName) {
   const res = await fetch(`${API_BASE}/api/auth/register`, {
     method: 'POST',
     headers: HEADERS,
-    body: JSON.stringify({ username, password, display_name: displayName }),
+    body: JSON.stringify({ email, password, display_name: displayName }),
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))

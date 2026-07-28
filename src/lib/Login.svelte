@@ -8,10 +8,10 @@
   let mode = 'login'
   let error = ''
 
-  let loginUsername = ''
+  let loginEmail = ''
   let loginPassword = ''
 
-  let regUsername = ''
+  let regEmail = ''
   let regDisplayName = ''
   let regPassword = ''
   let regConfirmPassword = ''
@@ -42,15 +42,23 @@
     window.location.href = `${API_BASE}/auth/google/login`
   }
 
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
   async function handleLogin() {
     error = ''
-    if (!loginUsername || !loginPassword) {
+    if (!loginEmail || !loginPassword) {
       error = 'Todos los campos son obligatorios'
+      return
+    }
+    if (!isValidEmail(loginEmail)) {
+      error = 'Correo electrónico inválido'
       return
     }
     loading = true
     try {
-      const data = await apiLogin(loginUsername, loginPassword)
+      const data = await apiLogin(loginEmail, loginPassword)
       localStorage.setItem('rentek_token', data.token)
       localStorage.setItem('rentek_user', JSON.stringify(data.user))
       dispatch('login', data.user)
@@ -63,8 +71,12 @@
 
   async function handleRegister() {
     error = ''
-    if (!regUsername || !regPassword || !regConfirmPassword) {
+    if (!regEmail || !regPassword || !regConfirmPassword) {
       error = 'Todos los campos son obligatorios'
+      return
+    }
+    if (!isValidEmail(regEmail)) {
+      error = 'Correo electrónico inválido'
       return
     }
     if (regPassword.length < 6) {
@@ -77,7 +89,7 @@
     }
     loading = true
     try {
-      const data = await apiRegister(regUsername, regPassword, regDisplayName)
+      const data = await apiRegister(regEmail, regPassword, regDisplayName)
       localStorage.setItem('rentek_token', data.token)
       localStorage.setItem('rentek_user', JSON.stringify(data.user))
       dispatch('login', data.user)
@@ -125,13 +137,13 @@
       <!-- Login Form -->
       <form on:submit|preventDefault={handleLogin} class="space-y-4">
         <div>
-          <label for="login-username" class="block text-xs font-medium text-text-muted mb-1.5">Usuario</label>
+          <label for="login-email" class="block text-xs font-medium text-text-muted mb-1.5">Correo electrónico</label>
           <input
-            id="login-username"
-            type="text"
-            bind:value={loginUsername}
+            id="login-email"
+            type="email"
+            bind:value={loginEmail}
             on:keydown={e => handleKeydown(e, handleLogin)}
-            placeholder="Tu nombre de usuario"
+            placeholder="correo@ejemplo.com"
             class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
           />
         </div>
@@ -161,13 +173,13 @@
       <!-- Register Form -->
       <form on:submit|preventDefault={handleRegister} class="space-y-4">
         <div>
-          <label for="reg-username" class="block text-xs font-medium text-text-muted mb-1.5">Usuario</label>
+          <label for="reg-email" class="block text-xs font-medium text-text-muted mb-1.5">Correo electrónico</label>
           <input
-            id="reg-username"
-            type="text"
-            bind:value={regUsername}
+            id="reg-email"
+            type="email"
+            bind:value={regEmail}
             on:keydown={e => handleKeydown(e, handleRegister)}
-            placeholder="Elige un nombre de usuario"
+            placeholder="correo@ejemplo.com"
             class="w-full px-3.5 py-2.5 rounded-xl bg-bg border border-border text-text placeholder:text-text-faint text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/60 transition-all"
           />
         </div>

@@ -12,7 +12,7 @@
   let user = null
   let checked = false
 
-  let activeTab = 'catalog' // 'catalog' | 'projects' | 'orders'
+  let activeTab = 'catalog'
   let isCartOpen = false
   let isChatOpen = false
   let cart = []
@@ -41,15 +41,33 @@
     } catch {}
   }
 
-  function handleAddToCart(e) {
+  async function handleAddToCart(e) {
     const cartItem = e.detail
     saveCart([...cart, cartItem])
+    const token = localStorage.getItem('rentek_token')
+    if (token && user) {
+      try {
+        const { addToCart } = await import('./lib/api.js')
+        await addToCart({
+          maquina_nombre: cartItem.item?.nombre || cartItem.maquina_nombre,
+          duration: cartItem.duration || 1,
+          duration_unit: cartItem.durationUnit || 'dias',
+          start_date: cartItem.startDate || '',
+          cantidad: 1,
+        }, token)
+      } catch {}
+    }
     isCartOpen = true
   }
 
   function handleRemoveFromCart(e) {
     const idx = e.detail
     saveCart(cart.filter((_, i) => i !== idx))
+    const token = localStorage.getItem('rentek_token')
+    const removedItem = cart[idx]
+    if (token && removedItem?.id) {
+      import('./lib/api.js').then(m => m.removeFromCart(removedItem.id, token)).catch(() => {})
+    }
   }
 
   function handleClearCart() {
@@ -80,64 +98,3 @@
     user = null
   }
 </script>
-
-{#if !checked}
-  <div class="flex flex-col items-center justify-center h-screen gap-3 bg-bg text-text-faint">
-    <span class="animate-pulse"><img src="/rentek-white.png" alt="Rentek" class="w-[72px] h-[72px] object-contain [filter:brightness(0)_saturate(100%)_invert(73%)_sepia(85%)_saturate(1200%)_hue-rotate(355deg)]" /></span>
-    <span class="font-black text-2xl text-amber-500 tracking-wider">RENTEK</span>
-    <p class="text-xs text-text-muted">Cargando E-Commerce...</p>
-  </div>
-{:else if user}
-  <div class="min-h-screen bg-bg text-text flex flex-col font-sans">
-    <Navbar
-      {user}
-      cartItemsCount={cart.length}
-      {activeTab}
-      {isChatOpen}
-      on:navigate={(e) => activeTab = e.detail}
-      on:toggleCart={() => isCartOpen = !isCartOpen}
-      on:toggleChat={() => isChatOpen = !isChatOpen}
-      on:logout={handleLogout}
-    />
-
-    <main class="flex-1 pb-16 md:pb-0">
-      {#if activeTab === 'catalog'}
-        <Catalog
-          on:addToCart={handleAddToCart}
-          on:consultAI={handleConsultAI}
-          on:toggleChat={() => isChatOpen = true}
-        />
-      {:else if activeTab === 'projects'}
-        <ProjectsView
-          on:consultAI={handleConsultAI}
-        />
-      {:else if activeTab === 'orders'}
-        <QuotesView />
-      {/if}
-    </main>
-
-    <CartDrawer
-      {cart}
-      {user}
-      isOpen={isCartOpen}
-      on:close={() => isCartOpen = false}
-      on:removeFromCart={handleRemoveFromCart}
-      on:clearCart={handleClearCart}
-      on:orderCreated={() => {
-        saveCart([])
-        activeTab = 'orders'
-      }}
-    />
-
-    <ChatDrawer
-      isOpen={isChatOpen}
-      {user}
-      initialQuery={initialChatQuery}
-      on:close={() => isChatOpen = false}
-      on:logout={handleLogout}
-    />
-  </div>
-{:else}
-  <Login on:login={handleLogin} />
-{/if}
-
