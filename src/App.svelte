@@ -98,3 +98,61 @@
     user = null
   }
 </script>
+
+{#if !checked}
+  <div class="flex flex-col items-center justify-center h-screen gap-3 bg-bg text-text-faint">
+    <span class="animate-pulse text-accent"><img src="/rentek-white.png" alt="Rentek" class="w-[72px] h-[72px] object-contain" /></span>
+    <p>Cargando Rentek E-Commerce...</p>
+  </div>
+{:else if user}
+  <div class="min-h-screen bg-bg text-text flex flex-col font-sans">
+    <Navbar
+      {user}
+      cartItemsCount={cart.length}
+      {activeTab}
+      {isChatOpen}
+      on:navigate={(e) => activeTab = e.detail}
+      on:toggleCart={() => isCartOpen = !isCartOpen}
+      on:toggleChat={() => isChatOpen = !isChatOpen}
+      on:logout={handleLogout}
+    />
+
+    <main class="flex-1 pb-16 md:pb-0">
+      {#if activeTab === 'catalog'}
+        <Catalog
+          on:addToCart={handleAddToCart}
+          on:consultAI={handleConsultAI}
+          on:toggleChat={() => isChatOpen = true}
+        />
+      {:else if activeTab === 'projects'}
+        <ProjectsView
+          on:consultAI={handleConsultAI}
+        />
+      {:else if activeTab === 'orders'}
+        <QuotesView />
+      {/if}
+    </main>
+
+    <CartDrawer
+      {cart}
+      {user}
+      isOpen={isCartOpen}
+      on:close={() => isCartOpen = false}
+      on:removeFromCart={handleRemoveFromCart}
+      on:clearCart={handleClearCart}
+      on:orderCreated={() => {
+        saveCart([])
+        activeTab = 'orders'
+      }}
+    />
+
+    <ChatDrawer
+      isOpen={isChatOpen}
+      {user}
+      on:close={() => isChatOpen = false}
+      on:logout={handleLogout}
+    />
+  </div>
+{:else}
+  <Login on:login={handleLogin} />
+{/if}
